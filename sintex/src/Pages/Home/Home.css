@@ -1,0 +1,136 @@
+.Home {
+  padding: 24px;
+  display: grid;
+  gap: 24px;
+}
+
+.HomeHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.HomeHeader h1 {
+  margin: 0;
+  font-size: 2.25rem;
+}
+
+.HomeHeader p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.RestaurantGrid {
+  display: grid;
+  gap: 20px;
+}
+
+.RestaurantCard {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.RestaurantCard h2 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.RestaurantMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--muted-strong);
+}
+
+.Rating {
+  font-weight: 700;
+  color: var(--success);
+}
+
+.Tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.RestaurantNotice {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  color: var(--muted-strong);
+}
+
+.RestaurantNotice p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.MenuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.MenuItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.MenuItem span:first-child {
+  font-weight: 600;
+}
+
+.Tag {
+  background: var(--surface-soft);
+  color: var(--muted-strong);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.Points {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.PointsColumn {
+  background: var(--surface-soft);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.PointsColumn h3 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.PointsList {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.PointsList li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 720px) {
+  .Points {
+    grid-template-columns: 1fr;
+  }
+}

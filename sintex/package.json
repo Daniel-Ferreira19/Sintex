@@ -11,7 +11,12 @@
   },
   "dependencies": {
     "react": "^19.2.6",
+<<<<<<< HEAD
     "react-dom": "^19.2.6"
+=======
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^6.30.3"
+>>>>>>> cb53c9c (Victor: parte do cabeçalho e organização suave de cores)
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

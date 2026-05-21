@@ -1,0 +1,97 @@
+.Menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 24px;
+  background: var(--primary-dark);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.MenuLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.MenuLogo {
+  display: flex;
+  align-items: center;
+  width: 70px;
+  height: 70px;
+}
+
+.MenuSearch {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px;
+}
+
+.MenuSearch input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--surface);
+  padding: 10px 12px;
+  min-width: 180px;
+}
+
+.MenuSearch input::placeholder {
+  color: var(--muted);
+}
+
+.MenuSearch button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: var(--primary-dark);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.MenuSearch button:hover {
+  background: var(--success);
+}
+
+.Menu a {
+  color: var(--surface);
+  text-decoration: none;
+  /* background: rgba(255, 255, 255, 0.08); */
+  padding: 10px 18px;
+  border-radius: 999px;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+  font-weight: 600;
+}
+
+.Menu a:hover {
+  background: #F19601 ;
+  transform: translateY(-1px);
+}
+
+.Menu a.active {
+  background: var(--primary);
+  color: var(--primary-dark);
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.24);
+}
+
+@media (max-width: 760px) {
+  .Menu {
+    justify-content: center;
+  }
+
+  .MenuSearch {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .MenuLinks {
+    justify-content: center;
+  }
+}

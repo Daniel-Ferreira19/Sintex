@@ -1,0 +1,180 @@
+.AdminPage {
+  padding: 24px;
+  display: grid;
+  gap: 24px;
+  background: var(--surface-strong);
+  min-height: calc(100vh - 80px);
+}
+
+.AdminHeader {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 28px 30px;
+  box-shadow: var(--shadow);
+}
+
+.AdminHeader h1 {
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+.AdminHeader p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.AdminCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.AdminCard h2 {
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.RestaurantMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+  color: var(--muted);
+}
+
+.Rating {
+  font-weight: 700;
+  color: var(--success);
+}
+
+.PointsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.PointsColumn {
+  border-radius: 20px;
+  padding: 20px;
+  line-height: 1.7;
+}
+
+.PointsColumn.positive {
+  background: var(--surface-soft);
+  border: 1px solid #a7f3d0;
+}
+
+.PointsColumn.negative {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.PointsColumn h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.PointsColumn ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.MenuSection {
+  background: var(--surface-soft);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.MenuSection h3 {
+  margin-top: 0;
+  color: var(--text);
+}
+
+.MenuSection ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.MenuSection li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.MenuSection li span:first-child {
+  font-weight: 600;
+}
+
+
+.RestaurantSelect {
+  margin-bottom: 24px;
+  display: grid;
+  gap: 10px;
+}
+
+.RestaurantSelect label {
+  color: #334155;
+  font-weight: 700;
+}
+
+.RestaurantSelect select {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.Description {
+  margin: 0 0 20px;
+  color: #334155;
+  line-height: 1.7;
+}
+
+.FeedbackSection {
+  margin-top: 22px;
+}
+
+.FeedbackSection h3 {
+  margin: 0 0 14px;
+  color: #0f172a;
+}
+
+.FeedbackSection ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.FeedbackSection li {
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.FeedbackSection li strong {
+  color: #0f172a;
+}
+
+.FeedbackSection li span {
+  color: #475569;
+  font-size: 0.95rem;
+}
