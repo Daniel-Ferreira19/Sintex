@@ -2,6 +2,7 @@ import React from 'react';
 import './Banner.css'; 
 import videoComdas from './Imagens/comidasModificacao.mp4';
 
+
 const Banner = () => {
   return (
     <div className="banner-container">
@@ -21,7 +22,8 @@ const Banner = () => {
           muted 
           playsInline
           className="food-animated-video"
-        />
+          />
+        
         <div className="video-shadow-glow"></div>
       {/* </div> */}
     </div>

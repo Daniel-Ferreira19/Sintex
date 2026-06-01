@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import MenuLink from "../MenuLink/MenuLink";
 import "./Menu.css";
 import logo from "./imagens/logo.png";
@@ -27,8 +27,12 @@ export default function Menu() {
   return (
     <nav className="Menu">
       <div className="MenuLogo">
-        <img src={logo} alt="Sintex Logo" className="MenuLogoImage" />
-      </div>  
+        <Link to="/">
+          <img src={logo} alt="Sintex Logo" className="MenuLogoImage" />
+        </Link>
+      </div> 
+
+
       <div className="MenuLinks">
         <MenuLink to="/">Home</MenuLink>
         <MenuLink to="/about">About</MenuLink>
