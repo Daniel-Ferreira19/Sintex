@@ -20,8 +20,9 @@ export default function App() {
 
         <Route path="/" element={<LayoutMenu />}>
           <Route index element={<Home />} />
-        <Route path="admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
-        <Route path="about" element={<About />} />
+          <Route path="client" element={<Home />} />
+          <Route path="admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
+          <Route path="about" element={<About />} />
         </Route>
 
         <Route path="*" element={<PaginaDeErro />} />

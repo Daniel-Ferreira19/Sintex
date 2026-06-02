@@ -20,7 +20,7 @@ export default function Menu() {
     if (query) {
       navigate(`/client?q=${encodeURIComponent(query)}`);
     } else {
-      navigate("/client");
+      navigate("/client?q=");
     }
   };
 
