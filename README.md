@@ -1,4 +1,4 @@
-Markdown
+
 # 🚀 Sintex - Painel de Controle e Plataforma de Restaurantes
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
@@ -120,3 +120,4 @@ git restore src/components/NomeDoArquivo.tsx
 # Para resetar TODOS os arquivos modificados da pasta de uma vez só:
 git checkout -- .
 ```
+>>>>>>> d3c10d35720e595d31f67a15040c1fc290b35672

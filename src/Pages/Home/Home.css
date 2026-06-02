@@ -1,0 +1,183 @@
+/* Mantive o início do seu CSS igual */
+.ClientPage {
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  background: var(--page-bg);
+}
+
+.ClientHeader {
+  max-width: 960px;
+  margin: 0 auto 24px;
+  padding: 28px 24px;
+  background: #F19601;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.ClientHeader h1 {
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+.ClientHeader p {
+  margin: 0;
+  color: white;
+}
+
+.ClientList {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.SearchInfo {
+  margin: 0;
+  color: var(--muted-strong);
+  font-weight: 600;
+}
+
+.EmptyState {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  color: var(--muted);
+}
+
+/* --- NOVO VISUAL DOS CARTÕES --- */
+
+.ClientCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  /* overflow: hidden é crucial para a imagem não vazar das bordas arredondadas */
+  overflow: hidden; 
+  box-shadow: var(--shadow);
+  z-index: 0;
+}
+
+/* O Header agora é o banner com a imagem */
+.ClientCardHeader {
+  position: relative;
+  min-height: 140px; /* Altura do banner */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+}
+
+/* O degradê escuro da esquerda para a direita para leitura do texto */
+.HeaderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.1) 100%);
+  z-index: 1;
+}
+
+/* O conteúdo por cima do overlay */
+.HeaderContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* Textos sempre brancos por causa do fundo escuro da foto */
+.HeaderInfo h2 {
+  margin: 0;
+  color: #ffffff; 
+  font-size: 1.6rem;
+}
+
+.HeaderInfo p {
+  margin: 6px 0 0;
+  color: #e0e0e0;
+  font-size: 0.95rem;
+}
+
+/* Botão Laranja igual ao do mockup */
+.ActionBtn {
+  border: none;
+  background: #F19601;
+  color: #1a1a1a;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.ActionBtn:hover {
+  background: #d68500;
+  transform: translateY(-2px);
+}
+
+/* --- DETALHES E MENU --- */
+
+.ClientDetails {
+  padding: 24px;
+  background: var(--surface);
+}
+
+.Description {
+  margin: 0 0 14px;
+  color: var(--muted-strong);
+  line-height: 1.7;
+}
+
+.ClientMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: var(--muted);
+}
+
+.ClientMenu h3 {
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.ClientMenu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.ClientMenu li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-soft); /* Ajustado para dar leve contraste */
+  border: 1px solid var(--border-soft);
+}
+
+.ClientMenu li span:first-child {
+  font-weight: 600;
+}
+
+/* Responsividade */
+@media (max-width: 760px) {
+  .HeaderContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .ActionBtn {
+    width: 100%;
+  }
+}
