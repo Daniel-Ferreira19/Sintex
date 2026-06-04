@@ -110,9 +110,22 @@
   background: linear-gradient(135deg, #fff5e6 0%, #ffffff 100%);
 }
 
+
 .developer-icon {
-  font-size: 3rem;
-  margin-bottom: 15px;
+  display: flex; /* pra imagem ficar centralizada */
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px; /* Mantém o espaçamento inferior */
+}
+
+.developer-icon img {
+  width: 120px; /* Reduzi o tamanho para 120px */
+  height: 120px; /* Torna a imagem quadrada para o border-radius funcionar */
+  border-radius: 50%; /* Torna a imagem circular igual a do git hub */
+  object-fit: cover; /* evita deformar a imagem */
+  object-position: center; /* Centraliza a imagem no circulo */
+  border: 3px solid #F19601; /* borda  */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra sutil */
 }
 
 .developer-card h3 {

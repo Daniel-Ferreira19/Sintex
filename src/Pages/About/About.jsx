@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import './About.css';
+import daniel from './fotos/daniel.jpg';
+import victor from './fotos/barcelos.jpg';
+import layanne from './fotos/layanne.jpg';
 
 export default function About() {
   return (
@@ -35,23 +38,23 @@ export default function About() {
         <p className="developers-subtitle">Conheça a equipe por trás do Sintex</p>
         
         <div className="developers-grid">
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="developer-card">
-            <div className="developer-icon">👨‍💻</div>
-            <h3>Desenvolvedor 1</h3>
-            <p>Frontend Developer</p>
+          <a href="https://github.com/barcelos00" target="_blank" rel="noopener noreferrer" className="developer-card">
+            <div className="developer-icon"> <img src={victor} alt="victor" /> </div>
+            <h3>Victor Barcelos</h3>
+            <p>Full Stack Developer</p>
             <span className="github-link">GitHub Profile →</span>
           </a>
           
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="developer-card">
-            <div className="developer-icon">👩‍💻</div>
-            <h3>Desenvolvedor 2</h3>
-            <p>Backend Developer</p>
+          <a href="https://github.com/Daniel-Ferreira19" target="_blank" rel="noopener noreferrer" className="developer-card">
+            <div className="developer-icon"> <img src={daniel} alt="daniel" /> </div>
+            <h3>Daniel Ferreira</h3>
+            <p>Full Stack Developer</p>
             <span className="github-link">GitHub Profile →</span>
           </a>
           
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="developer-card">
-            <div className="developer-icon">👨‍💻</div>
-            <h3>Desenvolvedor 3</h3>
+          <a href="https://github.com/layannesousa2025" target="_blank" rel="noopener noreferrer" className="developer-card">
+            <div className="developer-icon"> <img src={layanne} alt="layanne" /> </div>
+            <h3>Layanne Sousa</h3>
             <p>Full Stack Developer</p>
             <span className="github-link">GitHub Profile →</span>
           </a>
