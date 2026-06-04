@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom"; // 👇 IMPORTANTE: Importar o useNavigate
+import { useNavigate } from "react-router-dom";
 import "./Admin.css";
 import { getRestaurants } from "../../data/imagens/restaurants";
 
@@ -7,50 +7,64 @@ export default function Admin() {
   const [restaurantId, setRestaurantId] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [filterType, setFilterType] = useState("all");
-  const navigate = useNavigate(); // 👇 Inicializa o redirecionamento
+  const [editLink, setEditLink] = useState("");
+  const [editMenu, setEditMenu] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadRestaurants() {
       const data = await getRestaurants();
-      const saved = localStorage.getItem("restaurantsWithFeedback");
-      if (saved) {
-        const savedData = JSON.parse(saved);
-        const merged = data.map(
-          (restaurant) =>
-            savedData.find((r) => r.id === restaurant.id) || {
-              ...restaurant,
-              comments: [],
-              likedBy: [],
-            }
-        );
-        setRestaurants(merged);
-      } else {
-        setRestaurants(
-          data.map((restaurant) => ({
-            ...restaurant,
-            comments: [],
-            likedBy: [],
-          }))
-        );
-      }
-      if (!restaurantId && data.length > 0) {
-        setRestaurantId(data[0].id);
+      const saved = localStorage.getItem("restaurantsAdminData");
+      const savedData = saved ? JSON.parse(saved) : [];
+
+      const merged = data.map((restaurant) => {
+        const adminItem = savedData.find((item) => item.id === restaurant.id);
+        return {
+          ...restaurant,
+          link: adminItem?.link || restaurant.link || "",
+          menu: adminItem?.menu || restaurant.menu,
+          likedBy: adminItem?.likedBy || restaurant.likedBy || [],
+          comments:
+            adminItem?.comments ||
+            restaurant.feedback?.map((item, index) => ({
+              id: item.id ?? `feedback-${restaurant.id}-${index}`,
+              user: item.user || `Cliente ${index + 1}`,
+              text: item.comment || "",
+              timestamp: item.stars ? `${item.stars} estrelas` : "",
+            })) ||
+            [],
+        };
+      });
+
+      setRestaurants(merged);
+      if (!restaurantId && merged.length > 0) {
+        setRestaurantId(merged[0].id);
       }
     }
 
     loadRestaurants();
-  }, [restaurantId]);
+  }, []);
+
+  useEffect(() => {
+    const selected = restaurants.find((restaurant) => restaurant.id === Number(restaurantId));
+    if (selected) {
+      setEditLink(selected.link || "");
+      setEditMenu(selected.menu.map((item) => ({ ...item })));
+    }
+  }, [restaurantId, restaurants]);
 
   // 👇 FUNÇÃO DE LOGOUT: Limpa o acesso e joga pro login
   const handleLogout = () => {
-    localStorage.removeItem("userRole"); 
+    localStorage.removeItem("userRole");
     navigate("/login", { replace: true });
   };
 
   const selectedRestaurant = useMemo(
-    () => restaurants.find((restaurant) => restaurant.id === restaurantId) || restaurants[0],
+    () => restaurants.find((restaurant) => restaurant.id === Number(restaurantId)) || restaurants[0],
     [restaurantId, restaurants]
   );
+
+  const comments = selectedRestaurant?.comments || [];
 
   const getCommentSentiment = (text) => {
     const positive = [
@@ -78,7 +92,7 @@ export default function Admin() {
       "problema",
     ];
 
-    const lower = text.toLowerCase();
+    const lower = String(text).toLowerCase();
     const posCount = positive.filter((w) => lower.includes(w)).length;
     const negCount = negative.filter((w) => lower.includes(w)).length;
 
@@ -88,21 +102,57 @@ export default function Admin() {
   };
 
   const filteredComments = useMemo(() => {
-    if (!selectedRestaurant?.comments) return [];
-    if (filterType === "all") return selectedRestaurant.comments;
-    return selectedRestaurant.comments.filter(
-      (comment) => getCommentSentiment(comment.text) === filterType
+    if (!comments) return [];
+    if (filterType === "all") return comments;
+    return comments.filter((comment) => getCommentSentiment(comment.text) === filterType);
+  }, [comments, filterType]);
+
+  const saveAdminChanges = () => {
+    if (!selectedRestaurant) return;
+
+    const nextRestaurants = restaurants.map((restaurant) =>
+      restaurant.id === selectedRestaurant.id
+        ? { ...restaurant, link: editLink, menu: editMenu }
+        : restaurant
     );
-  }, [selectedRestaurant, filterType]);
+
+    setRestaurants(nextRestaurants);
+    localStorage.setItem(
+      "restaurantsAdminData",
+      JSON.stringify(
+        nextRestaurants.map(({ id, link, menu, likedBy, comments }) => ({
+          id,
+          link,
+          menu,
+          likedBy,
+          comments,
+        }))
+      )
+    );
+  };
+
+  const handleMenuItemChange = (index, field, value) => {
+    setEditMenu((currentMenu) =>
+      currentMenu.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  const handleAddMenuItem = () => {
+    setEditMenu((currentMenu) => [...currentMenu, { dish: "", price: "", description: "" }]);
+  };
+
+  const handleRemoveMenuItem = (index) => {
+    setEditMenu((currentMenu) => currentMenu.filter((_, itemIndex) => itemIndex !== index));
+  };
 
   return (
     <main className="AdminPage">
       <section className="AdminHeader">
         <h1>Área do Administrador</h1>
-        <p>Escolha o restaurante que representa o seu link e veja os feedbacks do seu público.</p>
-        
-        {/* 👇 BOTÃO DE LOGOUT ADICIONADO */}
-        <button onClick={handleLogout} className="LogoutButton" style={{ marginTop: '10px', padding: '8px 16px', cursor: 'pointer' }}>
+        <p>Escolha um restaurante, atualize o link e o cardápio, e confira feedbacks positivos e negativos.</p>
+        <button onClick={handleLogout} className="LogoutButton">
           Sair do Sistema
         </button>
       </section>
@@ -112,11 +162,11 @@ export default function Admin() {
           <label htmlFor="restaurant-select">Restaurante do administrador</label>
           <select
             id="restaurant-select"
-            value={restaurantId}
+            value={restaurantId.toString()}
             onChange={(event) => setRestaurantId(event.target.value)}
           >
             {restaurants.map((restaurant) => (
-              <option key={restaurant.id} value={restaurant.id}>
+              <option key={restaurant.id} value={restaurant.id.toString()}>
                 {restaurant.name}
               </option>
             ))}
@@ -127,40 +177,110 @@ export default function Admin() {
           <>
             <h2>Dados do restaurante: {selectedRestaurant.name}</h2>
             <div className="RestaurantMeta">
-              <span className="Rating">Avaliação: {selectedRestaurant.rating}</span>
+              <span className="Rating">Avaliação: {selectedRestaurant.rating || "N/A"}</span>
               <span>{selectedRestaurant.type}</span>
             </div>
             <p className="Description">{selectedRestaurant.description}</p>
+
+            <div className="RestaurantLinkSection">
+              <label htmlFor="restaurant-link">Link do restaurante</label>
+              <input
+                id="restaurant-link"
+                className="TextInput"
+                type="url"
+                placeholder="https://www.exemplo.com"
+                value={editLink}
+                onChange={(event) => setEditLink(event.target.value)}
+              />
+              {editLink && (
+                <a href={editLink} target="_blank" rel="noreferrer" className="LinkButton">
+                  Abrir link do restaurante
+                </a>
+              )}
+            </div>
 
             <div className="PointsGrid">
               <div className="PointsColumn positive">
                 <h3>Pontos positivos</h3>
                 <ul>
-                  {selectedRestaurant.positives.map((item) => (
-                    <li key={item}>+ {item}</li>
-                  ))}
+                  {selectedRestaurant.positives.length > 0 ? (
+                    selectedRestaurant.positives.map((item) => <li key={item}>+ {item}</li>)
+                  ) : (
+                    <li>Sem pontos positivos cadastrados.</li>
+                  )}
                 </ul>
               </div>
               <div className="PointsColumn negative">
                 <h3>Pontos negativos</h3>
                 <ul>
-                  {selectedRestaurant.negatives.map((item) => (
-                    <li key={item}>- {item}</li>
-                  ))}
+                  {selectedRestaurant.negatives.length > 0 ? (
+                    selectedRestaurant.negatives.map((item) => <li key={item}>- {item}</li>)
+                  ) : (
+                    <li>Sem pontos negativos cadastrados.</li>
+                  )}
                 </ul>
               </div>
             </div>
 
             <div className="MenuSection">
-              <h3>Cardápio do restaurante</h3>
-              <ul>
-                {selectedRestaurant.menu.map((item) => (
-                  <li key={item.dish}>
-                    <span>{item.dish}</span>
-                    <span>{item.price}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="MenuSectionHeader">
+                <h3>Editar cardápio</h3>
+                <button type="button" className="AddMenuBtn" onClick={handleAddMenuItem}>
+                  Adicionar item
+                </button>
+              </div>
+              {editMenu.length === 0 ? (
+                <p className="NoComments">Ainda não há itens no cardápio.</p>
+              ) : (
+                editMenu.map((item, index) => (
+                  <div key={`${item.dish}-${index}`} className="MenuItem">
+                    <div className="MenuItemRow">
+                      <div>
+                        <label>Prato</label>
+                        <input
+                          className="TextInput"
+                          type="text"
+                          value={item.dish}
+                          onChange={(event) => handleMenuItemChange(index, "dish", event.target.value)}
+                          placeholder="Ex: Pizza Calabresa"
+                        />
+                      </div>
+                      <div>
+                        <label>Preço</label>
+                        <input
+                          className="TextInput"
+                          type="text"
+                          value={item.price}
+                          onChange={(event) => handleMenuItemChange(index, "price", event.target.value)}
+                          placeholder="Ex: R$ 39,90"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label>Descrição do prato</label>
+                      <textarea
+                        className="TextArea"
+                        rows={2}
+                        value={item.description || ""}
+                        onChange={(event) => handleMenuItemChange(index, "description", event.target.value)}
+                        placeholder="Descrição opcional do prato"
+                      />
+                    </div>
+                    <div className="MenuItemActions">
+                      <button
+                        type="button"
+                        className="MenuActionBtn danger"
+                        onClick={() => handleRemoveMenuItem(index)}
+                      >
+                        Remover item
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+              <button type="button" className="SaveButton" onClick={saveAdminChanges}>
+                Salvar alterações do restaurante
+              </button>
             </div>
 
             <div className="FeedbackSection">
@@ -170,19 +290,19 @@ export default function Admin() {
                   className={`FilterBtn ${filterType === "all" ? "active" : ""}`}
                   onClick={() => setFilterType("all")}
                 >
-                  Todos ({selectedRestaurant?.comments?.length || 0})
+                  Todos ({comments.length})
                 </button>
                 <button
                   className={`FilterBtn positive ${filterType === "positive" ? "active" : ""}`}
                   onClick={() => setFilterType("positive")}
                 >
-                  ✅ Positivos ({selectedRestaurant?.comments?.filter((c) => getCommentSentiment(c.text) === "positive").length || 0})
+                  ✅ Positivos ({comments.filter((c) => getCommentSentiment(c.text) === "positive").length})
                 </button>
                 <button
                   className={`FilterBtn negative ${filterType === "negative" ? "active" : ""}`}
                   onClick={() => setFilterType("negative")}
                 >
-                  ❌ Negativos ({selectedRestaurant?.comments?.filter((c) => getCommentSentiment(c.text) === "negative").length || 0})
+                  ❌ Negativos ({comments.filter((c) => getCommentSentiment(c.text) === "negative").length})
                 </button>
               </div>
               <div className="CommentsList">
