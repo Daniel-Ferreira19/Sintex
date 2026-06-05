@@ -81,7 +81,7 @@ export default function Home() {
       JSON.stringify(nextRestaurants.map(({ id, feedback }) => ({ id, feedback })))
     );
   };
-  
+
   return (
     <main className="ClientPage">
   <section className="ClientHeader">

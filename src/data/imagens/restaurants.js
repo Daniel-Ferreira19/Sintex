@@ -236,6 +236,7 @@ function createRestaurantData(restaurant) {
  
   return {
     ...restaurant,
+    link: restaurant.link || "",
     name: restaurant.nome,
     description: restaurant.descricao,
     type: restaurant.categoria,
