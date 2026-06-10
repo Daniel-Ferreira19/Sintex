@@ -4,43 +4,55 @@ import logo from "../../Componentes/Menu/imagens/logo.png";
 import seta from "../../Componentes/Login/imagens/seta.png";
 import "./Login.css";
 
+// Esta página mostra o formulário de login para o administrador.
 export default function Login() {
+  // Guardamos o email e a senha que a pessoa digitou.
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [mensagem, setMensagem] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const adminStored = typeof window !== "undefined" ? localStorage.getItem("adminAccount") : null;
-  const adminExists = !!adminStored;
 
-  const handleLogin = (event) => {
-    event.preventDefault();
+  // Quando apertar o botão, vamos tentar entrar com o email e a senha.
+  const handleLogin = async (event) => {
+  event.preventDefault();
 
-    // Validação simples (depois você pode conectar com uma API)
-    const storedAdmin = adminStored ? JSON.parse(adminStored) : null;
+  if (!email || !senha) {
+    setMensagem("Por favor, preencha email e senha.");
+    return;
+  }
 
-    if (storedAdmin && email === storedAdmin.email && senha === storedAdmin.password) {
-      localStorage.setItem("userRole", "admin");
-      const from = location.state && location.state.from ? location.state.from.pathname : "/admin";
-      navigate(from, { replace: true });
+  try {
+    const resposta = await fetch("/php/login.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password: senha,
+      }),
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resultado.success) {
+      setMensagem(resultado.message);
       return;
     }
 
-    // fallback: credenciais internas (só se nenhum admin cadastrado)
-    if (!storedAdmin && email === "admin@sintex.com" && senha === "123456") {
-      localStorage.setItem("userRole", "admin");
-      const from = location.state && location.state.from ? location.state.from.pathname : "/admin";
-      navigate(from, { replace: true });
-      return;
-    }
+    localStorage.setItem("userRole", "admin");
 
-    if (email && senha) {
-      alert("Login como cliente!");
-      localStorage.setItem("userRole", "client");
-      navigate("/client");
-    } else {
-      alert("Por favor, preencha todos os campos.");
-    }
-  };
+    const paginaAnterior =
+      location.state?.from?.pathname || "/admin";
+
+    navigate(paginaAnterior, { replace: true });
+
+  } catch (erro) {
+    console.error(erro);
+    setMensagem("Erro ao conectar com o servidor.");
+  }
+};
 
   return (
     <div className="LoginContainer">
@@ -82,6 +94,7 @@ export default function Login() {
 
         <button type="submit" className="LoginButton">Acessar</button>
 
+        {mensagem && <div className="LoginMessage">{mensagem}</div>}
         <div className="LoginFooter">
           <a href="#recuperar">Esqueceu a senha?</a>
           <span> <a type="button" className="HighlightLink" onClick={() => navigate('/register-admin', { state: { from: location.state && location.state.from } })}>

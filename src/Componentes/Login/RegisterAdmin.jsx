@@ -1,38 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import logo from "../../Componentes/Menu/imagens/logo.png";
 import seta from "../../Componentes/Login/imagens/seta.png";
 import "./Login.css";
 
+// Esta página mostra o formulário para criar o primeiro administrador.
 export default function RegisterAdmin() {
+  // Aqui guardamos o email, a senha e o nome do restaurante.
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [restaurant, setRestaurant] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleRegister = (e) => {
+  useEffect(() => {
+    if (location.state?.email) setEmail(location.state.email);
+    if (location.state?.password) setSenha(location.state.password);
+  }, [location.state]);
+
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (!email || !senha || !restaurant) {
-      alert("Preencha todos os campos.");
+      alert("Por favor, preencha todos os campos.");
       return;
     }
 
-    const existing = localStorage.getItem("adminAccount");
-    if (existing) {
-      alert("Já existe um administrador cadastrado. Faça login.");
-      navigate("/login");
-      return;
+    try {
+      // Enviamos os dados para o PHP salvar no banco.
+      const response = await fetch("/php/register.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: senha, restaurant }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        if (data.status === "admin_already_exists") {
+          alert(data.message);
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        alert(data.message || "Erro ao cadastrar administrador.");
+        return;
+      }
+
+      localStorage.setItem("userRole", "admin");
+      const from = location.state && location.state.from ? location.state.from.pathname : "/admin";
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao conectar com o servidor. Tente novamente mais tarde.");
     }
-
-    const account = { email, password: senha, restaurant };
-    localStorage.setItem("adminAccount", JSON.stringify(account));
-    localStorage.setItem("userRole", "admin");
-
-    // redireciona para a rota original protegida, se houver
-    const from = location.state && location.state.from ? location.state.from.pathname : "/admin";
-    navigate(from, { replace: true });
   };
 
   return (
