@@ -81,146 +81,6 @@ export default function Home() {
           <div className="EmptyState"><p>Nenhum restaurante encontrado. Tente outra busca.</p></div>
         ) : (
           filteredRestaurants.map((restaurant) => (
-<<<<<<< HEAD
-            <article key={restaurant.id} className="ClientCard">
-              
-              {/* O Header agora carrega a imagem de fundo */}
-              <div className="ClientCardHeader"style={{ backgroundImage: `url(${restaurant.ImageData})` }}>
-                {/* Película escura para dar contraste no texto */}
-                <div className="HeaderOverlay"></div>
-                
-                {/* Conteúdo sobreposto à imagem */}
-                <div className="HeaderContent">
-                  <div className="HeaderInfo">
-                    <h2>{restaurant.name}</h2>
-                    <p>{restaurant.categoria || restaurant.type}</p>
-                  </div>
-                  <button
-                    className="ActionBtn" type="button" onClick={() => {
-                      if (selectedRestaurant?.id === restaurant.id) {
-                        setSelectedRestaurant(null);
-                      } else {
-                        setSelectedRestaurant(restaurant);
-                        setDetailTab("view");
-                        setFeedbackForm({ name: "", stars: 5, text: "" });
-                      }
-                    }}>
-                    {selectedRestaurant?.id === restaurant.id ? "Ocultar detalhes" : "Ver detalhes"}
-                  </button>
-                </div>
-              </div>
-
-              {/* Detalhes do Cardápio (Abre em baixo da imagem) */}
-              {selectedRestaurant?.id === restaurant.id && (
-                <div className="ClientDetails">
-                  <p className="Description">{restaurant.description}</p>
-                  <div className="ClientMeta">
-                    <span>Avaliação: {restaurant.rating || "N/A"}</span>
-                    <span>{restaurant.type}</span>
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.endereco)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ActionBtn MapLink"
-                        >
-                           📍Ver no mapa
-                        </a>
-                  </div>
-
-                  <div className="DetailTabs">
-                    <button
-                      type="button"
-                      className={`TabBtn ${detailTab === "view" ? "active" : ""}`}
-                      onClick={() => setDetailTab("view")}
-                    >
-                      Cardápio e feedback
-                    </button>
-                    <button
-                      type="button"
-                      className={`TabBtn ${detailTab === "add" ? "active" : ""}`}
-                      onClick={() => setDetailTab("add")}
-                    >
-                      Adicionar feedback
-                    </button>
-                  </div>
-
-                  {detailTab === "view" ? (
-                    <>
-                      <div className="ClientMenu">
-                        <h3>Cardápio</h3>
-                        <ul>
-                          {restaurant.menu?.map((item) => (
-                            <li key={item.dish}>
-                              <span>{item.dish}</span>
-                              <span>{item.price}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="FeedbackList">
-                        <h3>Feedback dos clientes</h3>
-                        {restaurant.feedback?.length > 0 ? (
-                          restaurant.feedback.map((feedback) => (
-                            <div key={feedback.id} className="FeedbackItem">
-                              <div className="FeedbackHeader">
-                                <strong>{feedback.user}</strong>
-                                <span>{feedback.stars} estrelas</span>
-                              </div>
-                              <p>{feedback.comment}</p>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="NoComments">Nenhum feedback disponível.</p>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <form className="FeedbackForm" onSubmit={(event) => handleSubmitFeedback(event, restaurant.id)}>
-                      <h3>Deixe seu feedback</h3>
-                      <div className="FormGroup">
-                        <label htmlFor={`feedback-name-${restaurant.id}`}>Nome</label>
-                        <input
-                          id={`feedback-name-${restaurant.id}`}
-                          type="text"
-                          value={feedbackForm.name}
-                          onChange={(event) => handleFeedbackInputChange("name", event.target.value)}
-                          placeholder="Seu nome"
-                        />
-                      </div>
-                      <div className="FormGroup">
-                        <label htmlFor={`feedback-stars-${restaurant.id}`}>Avaliação</label>
-                        <select
-                          id={`feedback-stars-${restaurant.id}`}
-                          value={feedbackForm.stars}
-                          onChange={(event) => handleFeedbackInputChange("stars", event.target.value)}
-                        >
-                          {[5, 4, 3, 2, 1].map((value) => (
-                            <option key={value} value={value}>
-                              {value} estrela{value > 1 ? "s" : ""}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="FormGroup">
-                        <label htmlFor={`feedback-text-${restaurant.id}`}>Comentário</label>
-                        <textarea
-                          id={`feedback-text-${restaurant.id}`}
-                          rows={4}
-                          value={feedbackForm.text}
-                          onChange={(event) => handleFeedbackInputChange("text", event.target.value)}
-                          placeholder="Escreva seu feedback"
-                        />
-                      </div>
-                      <button type="submit" className="SubmitFeedbackBtn">
-                        Enviar feedback
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )}
-            </article>
-=======
             <RestaurantCard 
               key={restaurant.id} 
               restaurant={restaurant} 
@@ -228,7 +88,6 @@ export default function Home() {
               onToggle={() => setSelectedId((prev) => (prev === restaurant.id ? null : restaurant.id))}
               onSubmitFeedback={handleAddFeedback}
             />
->>>>>>> a44358c7eeaf7315317aa209db3e1a470daaf5da
           ))
         )}
       </section>
@@ -284,7 +143,7 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
             <span>Avaliação: {restaurant.rating || "N/A"}</span>
             <span>{restaurant.type}</span>
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(restaurant.endereco)}`}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.endereco)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ActionBtn MapLink"
