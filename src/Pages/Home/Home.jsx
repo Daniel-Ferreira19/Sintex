@@ -81,7 +81,7 @@ export default function Home() {
       JSON.stringify(nextRestaurants.map(({ id, feedback }) => ({ id, feedback })))
     );
   };
-
+  
   return (
     <main className="ClientPage">
   <section className="ClientHeader">
@@ -104,7 +104,7 @@ export default function Home() {
             <article key={restaurant.id} className="ClientCard">
               
               {/* O Header agora carrega a imagem de fundo */}
-              <div className="ClientCardHeader"style={{ backgroundImage: `url(${restaurant.ImageData || 'caminho/para/imagem-padrao.jpg'})` }}>
+              <div className="ClientCardHeader"style={{ backgroundImage: `url(${restaurant.ImageData})` }}>
                 {/* Película escura para dar contraste no texto */}
                 <div className="HeaderOverlay"></div>
                 
@@ -168,8 +168,8 @@ export default function Home() {
                       <div className="ClientMenu">
                         <h3>Cardápio</h3>
                         <ul>
-                          {restaurant.menu?.map((item, index) => (
-                            <li key={item.id || index}>
+                          {restaurant.menu?.map((item) => (
+                            <li key={item.dish}>
                               <span>{item.dish}</span>
                               <span>{item.price}</span>
                             </li>
