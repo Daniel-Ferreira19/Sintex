@@ -1,40 +1,46 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST");
+header("Content-Type: application/json; charset=UTF-8");
 
-header("Content-Type: application/json");
-
-include "conexao.php";
+include "db.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$nome = $data["nome"];
 $email = $data["email"];
-$senha = password_hash($data["senha"], PASSWORD_DEFAULT);
+$senhaCriptografada = password_hash($data["password"], PASSWORD_DEFAULT);
+$restaurante = $data["restaurant"]; 
 
-// Verifica se já existe
+// Verifica se o e-mail já existe
 $sql = "SELECT id FROM administradores WHERE email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $email);
 $stmt->execute();
-
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     echo json_encode([
         "success" => false,
-        "message" => "Email já cadastrado"
+        "status" => "admin_already_exists",
+        "message" => "Este e-mail já está cadastrado."
     ]);
     exit;
 }
 
-$sql = "INSERT INTO administradores(nome,email,senha)
-VALUES(?,?,?)";
-
+// Insere no banco utilizando seus campos
+$sql = "INSERT INTO administradores (nome, email, senha) VALUES (?, ?, ?)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sss", $nome, $email, $senha);
+$stmt->bind_param("sss", $restaurante, $email, $senhaCriptografada);
 
-$stmt->execute();
-
-echo json_encode([
-    "success" => true,
-    "message" => "Administrador cadastrado"
-]);
+if ($stmt->execute()) {
+    echo json_encode([
+        "success" => true,
+        "message" => "Administrador cadastrado com sucesso!"
+    ]);
+} else {
+    echo json_encode([
+        "success" => false,
+        "message" => "Erro ao salvar no banco de dados."
+    ]);
+}

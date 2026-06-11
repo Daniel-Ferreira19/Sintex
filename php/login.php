@@ -1,54 +1,34 @@
 <?php
-
+// Permite que o React (que está em outra porta) converse com o PHP
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-include "conexao.php";
+include "db.php"; // Conecta com o MySQL
 
+// Pega o texto puro enviado pelo React e transforma em um array do PHP
 $data = json_decode(file_get_contents("php://input"), true);
 
 $email = $data["email"];
-$senha = $data["password"];
+$senhaDigitada = $data["password"];
 
-// Verifica se existe algum administrador
-$result = $conn->query("SELECT COUNT(*) as total FROM administradores");
-
-$row = $result->fetch_assoc();
-
-if ($row["total"] == 0) {
-    echo json_encode([
-        "success" => false,
-        "status" => "admin_not_registered"
-    ]);
-    exit;
-}
-
-$sql = "SELECT * FROM administradores WHERE email = ?";
-
-$stmt = $conn->prepare($sql);
+// 1. Busca o usuário no banco de dados de forma segura
+$stmt = $conn->prepare("SELECT * FROM administradores WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
+$resultado = $stmt->get_result();
 
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Email não encontrado"
-    ]);
+// 2. Se não achar o e-mail, avisa o React
+if ($resultado->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "Email não encontrado!"]);
     exit;
 }
 
-$admin = $result->fetch_assoc();
+$admin = $resultado->fetch_assoc();
 
-if (!password_verify($senha, $admin["senha"])) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Senha incorreta"
-    ]);
-    exit;
+// 3. Compara a senha digitada com a criptografada que está no banco
+if (password_verify($senhaDigitada, $admin["senha"])) {
+    echo json_encode(["success" => true, "message" => "Login bem-sucedido!"]);
+} else {
+    echo json_encode(["success" => false, "message" => "Senha incorreta!"]);
 }
-
-echo json_encode([
-    "success" => true,
-    "role" => "admin"
-]);
