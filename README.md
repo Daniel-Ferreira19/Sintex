@@ -120,4 +120,73 @@ git restore src/components/NomeDoArquivo.tsx
 # Para resetar TODOS os arquivos modificados da pasta de uma vez só:
 git checkout -- .
 ```
->>>>>>> d3c10d35720e595d31f67a15040c1fc290b35672
+
+## 💾 6. Configuração do banco de dados MySQL para o login do administrador
+Este projeto usa o MySQL via PHP em `php/db.php` para conectar com o banco de dados `sintex`.
+
+### 6.1 Banco de dados e tabela
+Use o phpMyAdmin, MySQL Workbench ou o terminal para criar a base e a tabela abaixo:
+
+```sql
+CREATE DATABASE IF NOT EXISTS sintex CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE sintex;
+
+CREATE TABLE IF NOT EXISTS administradores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+```
+
+### 6.2 Configurar a conexão PHP
+No arquivo `php/db.php`, ajuste as credenciais conforme seu ambiente:
+
+```php
+$host = "localhost";
+$user = "root";
+$password = "";
+$database = "sintex";
+```
+
+- `localhost` é o servidor local.
+- `root` é o usuário padrão do MySQL em ambientes como XAMPP.
+- Deixe `password` em branco se você estiver usando o MySQL padrão do XAMPP.
+
+### 6.3 Cadastro do administrador
+O endpoint `php/register.php` espera um JSON com `email`, `password` e `restaurant`.
+O script já faz hash da senha com `password_hash()` antes de salvar no banco.
+
+Exemplo de registro via API do React:
+```json
+{
+  "email": "admin@exemplo.com",
+  "password": "senhaSegura123",
+  "restaurant": "Nome do Restaurante"
+}
+```
+
+### 6.4 Inserir admin manualmente (opcional)
+Se precisar cadastrar um administrador manualmente no banco, gere o hash da senha com PHP e use-o no SQL:
+
+```bash
+php -r "echo password_hash('senhaSegura123', PASSWORD_DEFAULT);"
+```
+
+Depois use o hash retornado:
+```sql
+INSERT INTO administradores (nome, email, senha) VALUES (
+  'Administrador',
+  'admin@exemplo.com',
+  '$2y$10$...'
+);
+```
+
+### 6.5 Testar o login
+O login usa o arquivo `php/login.php`, que compara a senha digitada com o hash armazenado usando `password_verify()`.
+
+Envie um JSON com `email` e `password` para o endpoint de login, e o backend retornará uma resposta JSON informando sucesso ou falha.
+
+> Importante: não armazene senhas em texto simples. Sempre use o hash gerado por `password_hash()` para manter a segurança.
+

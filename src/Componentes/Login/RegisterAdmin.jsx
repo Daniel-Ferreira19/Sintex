@@ -85,3 +85,15 @@ export default function RegisterAdmin() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
