@@ -1,17 +1,21 @@
 # README MySQL - Login do Administrador
 
-Este arquivo descreve como configurar o banco de dados MySQL para o login do administrador do projeto Sintex.
+Este arquivo explica como criar o banco de dados MySQL para o projeto Sintex e como configurar a conexão PHP usando XAMPP.
 
-## 1. Criar o banco de dados
-Use o terminal MySQL, phpMyAdmin ou MySQL Workbench para criar o banco de dados:
+## 1. Abrir o XAMPP e iniciar o MySQL
+1. Abra o painel do XAMPP.
+2. Inicie o serviço `Apache` e `MySQL`.
+3. Verifique se o MySQL está rodando.
 
-```sql
-CREATE DATABASE IF NOT EXISTS sintex CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE sintex;
-```
+## 2. Criar o banco de dados no phpMyAdmin
+1. Abra o navegador em `http://localhost/phpmyadmin`.
+2. Clique em `Novo` no menu lateral.
+3. No campo `Nome do banco de dados`, digite `sintex`.
+4. Selecione `utf8mb4_unicode_ci` em `Collation`.
+5. Clique em `Criar`.
 
-## 2. Criar a tabela de administradores
-Crie a tabela `administradores` com os campos necessários para cadastro e login:
+## 3. Criar a tabela de administradores
+No phpMyAdmin, selecione o banco de dados `sintex` e abra a aba `SQL`. Cole o código abaixo e execute:
 
 ```sql
 CREATE TABLE IF NOT EXISTS administradores (
@@ -23,7 +27,38 @@ CREATE TABLE IF NOT EXISTS administradores (
 ) ENGINE=InnoDB;
 ```
 
-## 3. Configurar a conexão PHP
+## 4. Criar o banco de dados usando o terminal MySQL (opcional)
+Se preferir usar o terminal MySQL, siga estes passos:
+
+1. Abra o terminal do Windows.
+2. Execute:
+
+```bash
+mysql -u root -p
+```
+
+3. Quando pedir senha, apenas pressione `Enter` se o XAMPP estiver usando senha vazia.
+4. Dentro do MySQL, execute:
+
+```sql
+CREATE DATABASE IF NOT EXISTS sintex CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE sintex;
+CREATE TABLE IF NOT EXISTS administradores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+```
+
+5. Saia com:
+
+```sql
+EXIT;
+```
+
+## 5. Configurar a conexão PHP
 No arquivo `php/db.php`, ajuste as credenciais para o seu ambiente local:
 
 ```php
@@ -35,18 +70,18 @@ $database = "sintex";
 $conn = new mysqli($host, $user, $password, $database);
 ```
 
-- `localhost`: servidor local do MySQL
-- `root`: usuário padrão em XAMPP/WAMP
-- `password`: senha do MySQL (pode ficar em branco em ambiente local)
+- `localhost`: servidor local do MySQL.
+- `root`: usuário padrão em XAMPP.
+- `password`: senha do MySQL (geralmente em branco no XAMPP).
 
-## 4. Cadastro de administrador pelo backend
-O arquivo `php/register.php` espera receber um JSON com os campos:
+## 6. Como funciona o cadastro de administrador
+O arquivo `php/register.php` recebe um JSON com:
 
 - `email`
 - `password`
 - `restaurant`
 
-Ele já faz hash da senha usando `password_hash()` antes de salvar no banco.
+Ele faz hash da senha usando `password_hash()` antes de salvar no banco.
 
 ### Exemplo de JSON de cadastro
 ```json
@@ -57,13 +92,13 @@ Ele já faz hash da senha usando `password_hash()` antes de salvar no banco.
 }
 ```
 
-## 5. Login do administrador
+## 7. Login do administrador
 O arquivo `php/login.php` recebe um JSON com:
 
 - `email`
 - `password`
 
-Ele busca o administrador com o e-mail informado e compara a senha usando `password_verify()`.
+Ele busca o administrador por e-mail e compara a senha com `password_verify()`.
 
 ### Exemplo de JSON de login
 ```json
@@ -73,14 +108,14 @@ Ele busca o administrador com o e-mail informado e compara a senha usando `passw
 }
 ```
 
-## 6. Inserção manual de administrador (opcional)
-Se preferir criar um administrador manualmente no banco, gere o hash da senha no PHP:
+## 8. Inserção manual de administrador (opcional)
+Se quiser criar um administrador diretamente no banco, gere o hash da senha no PHP:
 
 ```bash
 php -r "echo password_hash('senhaSegura123', PASSWORD_DEFAULT);"
 ```
 
-Em seguida, insira o usuário com o hash gerado:
+Em seguida, no MySQL:
 
 ```sql
 INSERT INTO administradores (nome, email, senha) VALUES (
@@ -90,7 +125,7 @@ INSERT INTO administradores (nome, email, senha) VALUES (
 );
 ```
 
-## 7. Observações de segurança
+## 9. Observações de segurança
 - Nunca armazene senhas em texto simples.
 - Use `password_hash()` e `password_verify()` para proteger as senhas.
-- Em produção, ajuste o usuário e senha do MySQL para valores seguros.
+- Em produção, use credenciais MySQL seguras em vez de `root` com senha vazia.
