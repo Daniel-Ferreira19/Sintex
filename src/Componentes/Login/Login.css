@@ -93,7 +93,16 @@
   font-size: 0.85rem;
   color: #ffffff;
 }
- 
+
+.LoginMessage {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: rgba(255, 87, 34, 0.12);
+  color: #ffb49a;
+  border: 1px solid rgba(255, 87, 34, 0.2);
+  text-align: center;
+}
 
 .LoginFooter a:hover {
   color: #ff7300;
