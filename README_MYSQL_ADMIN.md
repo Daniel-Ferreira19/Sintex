@@ -1,96 +1,375 @@
-# README MySQL - Login do Administrador
+# 🚀 Configuração do Banco de Dados e Login de Administrador - Sintex
 
-Este arquivo descreve como configurar o banco de dados MySQL para o login do administrador do projeto Sintex.
+## 📋 Pré-requisitos
 
-## 1. Criar o banco de dados
-Use o terminal MySQL, phpMyAdmin ou MySQL Workbench para criar o banco de dados:
+Antes de começar, instale:
 
-```sql
-CREATE DATABASE IF NOT EXISTS sintex CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE sintex;
+* XAMPP
+* Node.js
+* npm
+
+---
+
+# 📂 Estrutura do Projeto
+
+O projeto deve estar localizado em:
+
+```text
+C:\xampp\htdocs\sintex\Sintex
 ```
 
-## 2. Criar a tabela de administradores
-Crie a tabela `administradores` com os campos necessários para cadastro e login:
+Estrutura principal:
+
+```text
+Sintex/
+├── php/
+│   ├── db.php
+│   ├── login.php
+│   └── register.php
+│
+├── src/
+├── public/
+├── package.json
+└── vite.config.js
+```
+
+---
+
+# 🔥 Iniciando o XAMPP
+
+Abra o painel do XAMPP e inicie:
+
+* Apache
+* MySQL
+
+Os dois serviços devem aparecer como:
+
+```text
+Running
+```
+
+---
+
+# 🗄️ Criando o Banco de Dados
+
+Acesse:
+
+```url
+http://localhost/phpmyadmin
+```
+
+Clique em **Novo**.
+
+Crie um banco chamado:
+
+```sql
+sintex
+```
+
+Utilize a collation:
+
+```text
+utf8mb4_unicode_ci
+```
+
+Clique em **Criar**.
+
+---
+
+# 📊 Criando a Tabela de Administradores
+
+Selecione o banco **sintex**.
+
+Abra a aba **SQL**.
+
+Execute:
 
 ```sql
 CREATE TABLE IF NOT EXISTS administradores (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(150) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  senha VARCHAR(255) NOT NULL,
-  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-## 3. Configurar a conexão PHP
-No arquivo `php/db.php`, ajuste as credenciais para o seu ambiente local:
+Após executar:
+
+```text
+sintex
+└── administradores
+```
+
+---
+
+# ⚙️ Configurando a Conexão com o Banco
+
+Arquivo:
+
+```text
+php/db.php
+```
 
 ```php
+<?php
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $database = "sintex";
 
-$conn = new mysqli($host, $user, $password, $database);
-```
+$conn = new mysqli(
+    $host,
+    $user,
+    $password,
+    $database
+);
 
-- `localhost`: servidor local do MySQL
-- `root`: usuário padrão em XAMPP/WAMP
-- `password`: senha do MySQL (pode ficar em branco em ambiente local)
-
-## 4. Cadastro de administrador pelo backend
-O arquivo `php/register.php` espera receber um JSON com os campos:
-
-- `email`
-- `password`
-- `restaurant`
-
-Ele já faz hash da senha usando `password_hash()` antes de salvar no banco.
-
-### Exemplo de JSON de cadastro
-```json
-{
-  "email": "admin@exemplo.com",
-  "password": "senhaSegura123",
-  "restaurant": "Nome do Restaurante"
+if ($conn->connect_error) {
+    die(json_encode([
+        "success" => false,
+        "message" => "Erro na conexão com o banco."
+    ]));
 }
 ```
 
-## 5. Login do administrador
-O arquivo `php/login.php` recebe um JSON com:
+---
 
-- `email`
-- `password`
+# 📝 Backend de Cadastro
 
-Ele busca o administrador com o e-mail informado e compara a senha usando `password_verify()`.
+Arquivo:
 
-### Exemplo de JSON de login
-```json
-{
-  "email": "admin@exemplo.com",
-  "password": "senhaSegura123"
-}
+```text
+php/register.php
 ```
 
-## 6. Inserção manual de administrador (opcional)
-Se preferir criar um administrador manualmente no banco, gere o hash da senha no PHP:
+Funções:
 
-```bash
-php -r "echo password_hash('senhaSegura123', PASSWORD_DEFAULT);"
-```
+* Receber dados enviados pelo React
+* Verificar se o e-mail já existe
+* Criptografar a senha
+* Salvar administrador no banco
 
-Em seguida, insira o usuário com o hash gerado:
+Criptografia utilizada:
 
-```sql
-INSERT INTO administradores (nome, email, senha) VALUES (
-  'Administrador',
-  'admin@exemplo.com',
-  '$2y$10$...'
+```php
+password_hash(
+    $senha,
+    PASSWORD_DEFAULT
 );
 ```
 
-## 7. Observações de segurança
-- Nunca armazene senhas em texto simples.
-- Use `password_hash()` e `password_verify()` para proteger as senhas.
-- Em produção, ajuste o usuário e senha do MySQL para valores seguros.
+---
+
+# 🔐 Backend de Login
+
+Arquivo:
+
+```text
+php/login.php
+```
+
+Funções:
+
+* Receber e-mail e senha
+* Buscar usuário no banco
+* Comparar senha digitada com senha criptografada
+
+Validação:
+
+```php
+password_verify(
+    $senhaDigitada,
+    $admin["senha"]
+);
+```
+
+---
+
+# ⚛️ Iniciando o Frontend React
+
+Abra o terminal na raiz do projeto:
+
+```bash
+npm install
+```
+
+Depois execute:
+
+```bash
+npm run dev
+```
+
+O Vite iniciará normalmente em:
+
+```url
+http://localhost:5173
+```
+
+---
+
+# 🌐 URL do Cadastro
+
+Arquivo:
+
+```text
+RegisterAdmin.jsx
+```
+
+```javascript
+fetch(
+  "http://localhost/sintex/Sintex/php/register.php",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+)
+```
+
+---
+
+# 🌐 URL do Login
+
+Arquivo:
+
+```text
+Login.jsx
+```
+
+```javascript
+fetch(
+  "http://localhost/sintex/Sintex/php/login.php",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+)
+```
+
+---
+
+# 👤 Criando o Primeiro Administrador
+
+Acesse a tela de cadastro.
+
+Preencha:
+
+```text
+Email: teste@teste.com
+Senha: 123456
+Restaurante: Meu Restaurante
+```
+
+Clique em:
+
+```text
+Cadastrar
+```
+
+Resultado esperado:
+
+```text
+Administrador cadastrado com sucesso!
+```
+
+---
+
+# ✅ Verificando o Cadastro
+
+No phpMyAdmin:
+
+```text
+sintex
+└── administradores
+    └── Procurar
+```
+
+Exemplo:
+
+| id | nome            | email                                     |
+| -- | --------------- | ----------------------------------------- |
+| 1  | Meu Restaurante | [teste@teste.com](mailto:teste@teste.com) |
+
+A senha ficará armazenada criptografada:
+
+```text
+$2y$10$...
+```
+
+---
+
+# 🔑 Testando o Login
+
+Utilize:
+
+```text
+Email: teste@teste.com
+Senha: 123456
+```
+
+Resultado esperado:
+
+```text
+Login bem-sucedido!
+```
+
+Redirecionamento:
+
+```text
+/admin
+```
+
+---
+
+# 🛡️ Segurança
+
+O sistema utiliza:
+
+* Prepared Statements
+* password_hash()
+* password_verify()
+* Validação de e-mail único
+
+As senhas não são armazenadas em texto puro.
+
+---
+
+# 🛠️ Tecnologias Utilizadas
+
+### Frontend
+
+* React
+* React Router DOM
+* Vite
+
+### Backend
+
+* PHP 8
+
+### Banco de Dados
+
+* MySQL
+
+### Servidor Local
+
+* Apache (XAMPP)
+
+---
+
+# 📌 Observações
+
+* O React roda pela porta do Vite (`5173`).
+* O PHP é executado pelo Apache do XAMPP.
+* O banco de dados utilizado é o MySQL do XAMPP.
+* O diretório do projeto deve estar dentro da pasta `htdocs`.
+
+---
+
+# 👨‍💻 Projeto Sintex
+
+Sistema de gerenciamento desenvolvido com React, PHP e MySQL.
