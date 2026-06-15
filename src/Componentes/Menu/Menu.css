@@ -8,6 +8,9 @@
   /* Padding dinâmico: menor em telas pequenas, maior em telas grandes */
   padding: clamp(10px, 2vh, 15px) clamp(16px, 4vw, 24px);
   background: var(--primary-dark);
+  background: rgba(13, 13, 13, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-wrap: wrap;
   position: sticky;
   top: 0;
@@ -69,6 +72,8 @@
   padding: clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 16px);
   background: var(--primary);
   color: var(--primary-dark);
+  background: #ff5a1f;
+  color: #ffffff;
   font-weight: 700;
   font-size: clamp(0.85rem, 1.2vw, 0.95rem);
   cursor: pointer;
@@ -77,6 +82,7 @@
 
 .MenuSearch button:hover {
   background: var(--success);
+  background: #ff8a3d;
 }
 
 /* Links do Menu */
@@ -93,6 +99,8 @@
 
 .Menu a:hover {
   background: #F19601;
+  background: rgba(255, 90, 31, 0.1);
+  color: #ff5a1f;
   transform: translateY(-1px);
 }
 
@@ -100,6 +108,9 @@
   background: var(--primary);
   color: var(--primary-dark);
   box-shadow: 0 8px 20px rgba(56, 189, 248, 0.24);
+  background: #ff5a1f;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(255, 90, 31, 0.2);
 }
 
 /* Ajuste para Celulares / Telas Menores */

@@ -8,24 +8,45 @@ include "db.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$email = $data["email"];
+$email = trim($data["email"]);
 $senhaCriptografada = password_hash($data["password"], PASSWORD_DEFAULT);
-$restaurante = $data["restaurant"]; 
+$restaurante = trim($data["restaurant"]);
 
-// Verifica se o e-mail já existe
-$sql = "SELECT id FROM administradores WHERE email = ?";
+if ($email === "" || $restaurante === "") {
+    echo json_encode([
+        "success" => false,
+        "message" => "E-mail e restaurante são obrigatórios."
+    ]);
+    exit;
+}
+
+// Verifica se o e-mail ou o nome do restaurante já existem
+$sql = "SELECT id, email, nome FROM administradores WHERE email = ? OR nome = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $email);
+$stmt->bind_param("ss", $email, $restaurante);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    echo json_encode([
-        "success" => false,
-        "status" => "admin_already_exists",
-        "message" => "Este e-mail já está cadastrado."
-    ]);
-    exit;
+    $existing = $result->fetch_assoc();
+
+    if ($existing["email"] === $email) {
+        echo json_encode([
+            "success" => false,
+            "status" => "admin_already_exists",
+            "message" => "Este e-mail já está cadastrado."
+        ]);
+        exit;
+    }
+
+    if (strcasecmp($existing["nome"], $restaurante) === 0) {
+        echo json_encode([
+            "success" => false,
+            "status" => "restaurant_already_exists",
+            "message" => "Este restaurante já está cadastrado."
+        ]);
+        exit;
+    }
 }
 
 // Insere no banco utilizando seus campos

@@ -64,7 +64,7 @@ export default function Home() {
       JSON.stringify(nextRestaurants.map(({ id, feedback }) => ({ id, feedback })))
     );
   };
-
+  
   return (
     <main className="ClientPage">
       <section className="ClientHeader">
@@ -143,7 +143,7 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
             <span>Avaliação: {restaurant.rating || "N/A"}</span>
             <span>{restaurant.type}</span>
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(restaurant.endereco)}`}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.endereco)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ActionBtn MapLink"

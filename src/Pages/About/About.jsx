@@ -4,62 +4,130 @@ import daniel from './fotos/daniel.jpg';
 import victor from './fotos/barcelos.jpg';
 import layanne from './fotos/layanne.jpg';
 
+const desenvolvedores = [
+  {
+    name: 'Victor Barcelos',
+    role: 'Full Stack Developer',
+    img: victor,
+    profile: 'https://github.com/barcelos00',
+    initials: 'VB',
+  },
+  {
+    name: 'Daniel Ferreira',
+    role: 'Full Stack Developer',
+    img: daniel,
+    profile: 'https://github.com/Daniel-Ferreira19',
+    initials: 'DF',
+  },
+  {
+    name: 'Layanne Sousa',
+    role: 'Full Stack Developer',
+    img: layanne,
+    profile: 'https://github.com/layannesousa2025',
+    initials: 'LS',
+  },
+];
+
+const IconeGitHub = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+  </svg>
+);
+
+const CartaoDesenvolvedor = ({ name, role, img, profile, initials }) => (
+  <a
+    href={profile}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="cartao-desenvolvedor"
+    aria-label={`Perfil do GitHub de ${name}`}
+  >
+    <div className="avatar-desenvolvedor-container">
+      <img
+        src={img}
+        alt={name}
+        className="avatar-desenvolvedor"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+          e.currentTarget.nextElementSibling.style.display = 'flex';
+        }}
+      />
+      <div className="avatar-desenvolvedor-fallback" aria-hidden="true">
+        {initials}
+      </div>
+    </div>
+
+    <div className="info-desenvolvedor">
+      <h3 className="nome-desenvolvedor">{name}</h3>
+      <p className="cargo-desenvolvedor">{role}</p>
+    </div>
+
+    <span className="link-github">
+      <IconeGitHub />
+      Ver perfil
+    </span>
+  </a>
+);
+
+const CartaoPilar = ({ title, children }) => (
+  <div className="cartao-pilar">
+    <h3 className="titulo-pilar">{title}</h3>
+    <p className="texto-pilar">{children}</p>
+  </div>
+);
+
 export default function About() {
   return (
-    <div className="about-container">
-      <header className="about-header">
-        <h1>About Sintex</h1>
-        <p>Sistema Integrado de Tecnologia e Experiência</p>
+    <main className="container-sobre">
+      <header className="hero-sobre">
+        <div className="hero-etiqueta">Sobre o projeto</div>
+        <h1 className="hero-titulo">Sintex</h1>
+        <p className="hero-subtitulo">
+          Sistema Integrado de Tecnologia e Experiência
+        </p>
       </header>
 
-      <section className="about-content">
-        <h2>Quem somos</h2>
+      <section className="introducao-sobre">
         <p>
-          O <strong>Sintex</strong> é um projeto desenvolvido com o objetivo de
-          integrar tecnologia, inovação e praticidade, oferecendo soluções
-          digitais modernas e acessíveis.
-        </p>
-
-        <h2>Missão</h2>
-        <p>
-          Nossa missão é criar aplicações eficientes, intuitivas e seguras,
-          contribuindo para o aprendizado e o desenvolvimento tecnológico.
-        </p>
-
-        <h2>Visão</h2>
-        <p>
-          Ser um projeto de referência em organização, usabilidade e boas
-          práticas de desenvolvimento.
+          O <strong>Sintex</strong> é uma plataforma inteligente projetada para estreitar o laço entre clientes e estabelecimentos gastronômicos, transformando avaliações em dados estratégicos e facilitando a descoberta de novas experiências.
         </p>
       </section>
 
-      <section className="developers-section">
-        <h2>Desenvolvedores</h2>
-        <p className="developers-subtitle">Conheça a equipe por trás do Sintex</p>
-        
-        <div className="developers-grid">
-          <a href="https://github.com/barcelos00" target="_blank" rel="noopener noreferrer" className="developer-card">
-            <div className="developer-icon"> <img src={victor} alt="victor" /> </div>
-            <h3>Victor Barcelos</h3>
-            <p>Full Stack Developer</p>
-            <span className="github-link">GitHub Profile →</span>
-          </a>
-          
-          <a href="https://github.com/Daniel-Ferreira19" target="_blank" rel="noopener noreferrer" className="developer-card">
-            <div className="developer-icon"> <img src={daniel} alt="daniel" /> </div>
-            <h3>Daniel Ferreira</h3>
-            <p>Full Stack Developer</p>
-            <span className="github-link">GitHub Profile →</span>
-          </a>
-          
-          <a href="https://github.com/layannesousa2025" target="_blank" rel="noopener noreferrer" className="developer-card">
-            <div className="developer-icon"> <img src={layanne} alt="layanne" /> </div>
-            <h3>Layanne Sousa</h3>
-            <p>Full Stack Developer</p>
-            <span className="github-link">GitHub Profile →</span>
-          </a>
+      <section className="secao-pilares" aria-label="Missão e visão">
+        <CartaoPilar title="Missão">
+          Capacitar donos de restaurantes com ferramentas de análise precisas e oferecer aos consumidores um espaço transparente para compartilhar e encontrar opiniões reais.
+        </CartaoPilar>
+
+        <CartaoPilar title="Visão">
+          Tornar-se o ecossistema padrão para gestão de feedback e visibilidade digital no setor de alimentação, unindo tecnologia de ponta à simplicidade de uso.
+        </CartaoPilar>
+
+        <CartaoPilar title="Valores">
+          Foco na experiência do usuário, transparência absoluta nas avaliações e a humanização dos dados para o fortalecimento do comércio local.
+        </CartaoPilar>
+      </section>
+
+      <section className="secao-desenvolvedores">
+        <div className="cabecalho-desenvolvedores">
+          <h2 className="titulo-desenvolvedores">Equipe</h2>
+          <p className="subtitulo-desenvolvedores">
+            As pessoas por trás do Sintex
+          </p>
+        </div>
+
+        <div className="grade-desenvolvedores">
+          {desenvolvedores.map((dev) => (
+            <CartaoDesenvolvedor key={dev.name} {...dev} />
+          ))}
         </div>
       </section>
-    </div>
+    </main>
   );
 }
