@@ -20,7 +20,6 @@ export default function App() {
         {/* Grupo de rotas que compartilham o mesmo Layout de Menu */}
         <Route path="/" element={<LayoutMenu />}>
           <Route index element={<Home />} />
-          <Route path="client" element={<Home />} />
           <Route path="about" element={<About />} />
           {/* Rota do Admin protegida pelo componente RequireAdmin */}
           <Route path="admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
@@ -29,8 +28,6 @@ export default function App() {
         {/* Rotas autônomas (sem o LayoutMenu poluindo o visual) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register-admin" element={<RegisterAdmin />} />
-        
-        {/* Rota de erro genérica caso digitem caminhos inexistentes */}
         <Route path="*" element={<PaginaDeErro />} />
       </Routes>
     </>
