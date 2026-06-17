@@ -156,7 +156,7 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
               rel="noopener noreferrer"
               className="ActionBtn MapLink"
             >
-              📍Ver no mapa
+              Ver no mapa
             </a>
           </div>
 
