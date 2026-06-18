@@ -1,26 +1,30 @@
-import { useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import MenuLink from "../MenuLink/MenuLink";
-import "./Menu.css";
 import logo from "./imagens/logo.png";
+import "./Menu.css";
 
-// Menu principal com links e busca de restaurantes.
 export default function Menu() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const initialSearch = params.get("q") || "";
+  const [searchParams] = useSearchParams();
+  
+  // Sincroniza a barra de pesquisa se a URL mudar por fora
+  const initialSearch = searchParams.get("q") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
+  useEffect(() => {
+    setSearchTerm(searchParams.get("q") || "");
+  }, [searchParams]);
 
   const handleSearch = (event) => {
     event.preventDefault();
     const query = searchTerm.trim();
-    // Envia o usuário para a página do cliente com o termo de busca.
+    
+    // Envia para a Home (ou a rota onde o componente Home está renderizado)
     if (query) {
-      navigate(`/client?q=${encodeURIComponent(query)}`);
+      navigate(`/?q=${encodeURIComponent(query)}`);
     } else {
-      navigate("/client?q=");
+      navigate("/");
     }
   };
 
@@ -32,12 +36,10 @@ export default function Menu() {
         </Link>
       </div> 
 
-
       <div className="MenuLinks">
         <MenuLink to="/">Home</MenuLink>
         <MenuLink to="/about">About</MenuLink>
         <MenuLink to="/admin">Administrador</MenuLink>
-        <MenuLink to="/login">Login</MenuLink>
       </div>
 
       <form className="MenuSearch" onSubmit={handleSearch}>

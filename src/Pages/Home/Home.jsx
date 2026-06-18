@@ -38,11 +38,19 @@ export default function Home() {
   }, []);
 
   // 3. Filtro enxuto utilizando o método .some()
+  // 3. Filtro enxuto utilizando o método .some() com fallbacks seguros
   const filteredRestaurants = useMemo(() => {
     if (!query) return restaurants;
-    return restaurants.filter(({ name, type, description }) =>
-      [name, type, description].some((field) => field.toLowerCase().includes(query))
-    );
+    return restaurants.filter((restaurant) => {
+      // Mapeia tanto as chaves em português quanto em inglês para garantir
+      const nome = restaurant.nome || restaurant.name || "";
+      const categoria = restaurant.categoria || restaurant.type || "";
+      const descricao = restaurant.descricao || restaurant.description || "";
+
+      return [nome, categoria, descricao].some((field) => 
+        field.toLowerCase().includes(query)
+      );
+    });
   }, [query, restaurants]);
 
   // 4. Lógica de feedback focada apenas na atualização da lista
@@ -148,7 +156,7 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
               rel="noopener noreferrer"
               className="ActionBtn MapLink"
             >
-              📍Ver no mapa
+              Ver no mapa
             </a>
           </div>
 
