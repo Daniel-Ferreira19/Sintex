@@ -31,14 +31,12 @@
   letter-spacing: -0.03em;
   line-height: 1;
   color: #0f0f0f;
-  margin: 0 0 1rem;
+  margin-bottom: 1rem;
 }
 
 .hero-subtitulo {
   font-size: 1.125rem;
   color: #666;
-  margin: 0;
-  font-weight: 400;
 }
 
 /* ─── Introdução ─────────────────────────────────────────── */
@@ -49,15 +47,13 @@
 }
 
 .introducao-sobre p {
-  font-size: 1.0625rem;
+  font-size: 1.05rem;
   line-height: 1.75;
   color: #444;
-  margin: 0;
 }
 
 .introducao-sobre strong {
   color: #0f0f0f;
-  font-weight: 600;
 }
 
 /* ─── Pilares ────────────────────────────────────────────── */
@@ -65,8 +61,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1px;
-  background-color: #e8e8e8;
-  border: 1px solid #e8e8e8;
+  background: #e8e8e8;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 4rem;
@@ -78,80 +73,37 @@
 }
 
 .titulo-pilar {
-  font-size: 0.6875rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #999;
-  margin: 0 0 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .texto-pilar {
-  font-size: 0.9375rem;
-  line-height: 1.65;
+  font-size: 0.95rem;
   color: #444;
-  margin: 0;
 }
 
-/* ─── Seção desenvolvedores ───────────────────────────────── */
-.secao-desenvolvedores {
-  margin-top: 1rem;
-}
-
-.cabecalho-desenvolvedores {
-  margin-bottom: 2rem;
-}
-
-.titulo-desenvolvedores {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #0f0f0f;
-  margin: 0 0 0.25rem;
-}
-
-.subtitulo-desenvolvedores {
-  font-size: 0.9375rem;
-  color: #888;
-  margin: 0;
-}
-
+/* ─── Desenvolvedores ────────────────────────────────────── */
 .grade-desenvolvedores {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 
-/* ─── Cartão desenvolvedor ───────────────────────────────── */
 .cartao-desenvolvedor {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 1.5rem;
   background: #fff;
   border: 1px solid #e8e8e8;
   border-radius: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
 }
 
 .cartao-desenvolvedor:hover {
-  border-color: #bbb;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   transform: translateY(-2px);
-}
-
-.cartao-desenvolvedor:focus-visible {
-  outline: 2px solid #0f0f0f;
-  outline-offset: 2px;
-}
-
-.avatar-desenvolvedor-container {
-  position: relative;
-  width: 60px;
-  height: 60px;
-  margin-bottom: 1rem;
 }
 
 .avatar-desenvolvedor {
@@ -159,7 +111,6 @@
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  display: block;
 }
 
 .avatar-desenvolvedor-fallback {
@@ -167,120 +118,46 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #f0f0f0;
+  background: #eee;
   color: #666;
-  font-size: 1rem;
   font-weight: 600;
   align-items: center;
   justify-content: center;
 }
 
-.info-desenvolvedor {
-  flex: 1;
-  margin-bottom: 1.25rem;
-}
-
 .nome-desenvolvedor {
-  font-size: 1rem;
   font-weight: 600;
-  color: #0f0f0f;
-  margin: 0 0 0.25rem;
-  line-height: 1.3;
+  margin-top: 0.75rem;
 }
 
 .cargo-desenvolvedor {
-  font-size: 0.8125rem;
+  font-size: 0.85rem;
   color: #888;
-  margin: 0;
 }
 
-.link-github {
-  display: inline-flex;
-  align-items: center;
+.redes-sociais-dev {
+  display: flex;
   gap: 6px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #444;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 0.35rem 0.75rem;
-  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  margin-top: 1rem;
 }
 
-.cartao-desenvolvedor:hover .link-github {
+.redes-sociais-dev a {
+  font-size: 0.7rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #666;
+}
+
+.redes-sociais-dev a:hover {
   background: #0f0f0f;
-  border-color: #0f0f0f;
   color: #fff;
 }
 
 /* ─── Responsivo ─────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .container-sobre {
-    padding: 2rem 1rem 3rem;
-  }
-
-  .hero-sobre {
-    padding: 2.5rem 0 2rem;
-  }
-
-  .secao-pilares {
-    grid-template-columns: 1fr;
-  }
-
   .grade-desenvolvedores {
     grid-template-columns: 1fr;
-  }
-}
-
-/* ─── Dark mode ──────────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  .container-sobre { color: #f0f0f0; }
-  .hero-sobre { border-bottom-color: #2a2a2a; }
-  .hero-titulo { color: #e44d0c; }
-  .hero-subtitulo,
-  .hero-etiqueta { color: #6c6a6a; }
-
-  .introducao-sobre p { color: #626060; }
-  .introducao-sobre strong { color: #dd4914; }
-
-  .secao-pilares {
-    background-color: #2a2a2a;
-    border-color: #2a2a2a;
-  }
-
-  .cartao-pilar { background: #1a1a1a; }
-  .titulo-pilar { color: #666; }
-  .texto-pilar { color: #bbb; }
-
-  .titulo-desenvolvedores { color: #e24f19; }
-  .subtitulo-desenvolvedores { color: #888; }
-
-  .cartao-desenvolvedor {
-    background: #1a1a1a;
-    border-color: #2a2a2a;
-  }
-
-  .cartao-desenvolvedor:hover {
-    border-color: #444;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  }
-
-  .nome-desenvolvedor { color: #f5f5f5; }
-  .cargo-desenvolvedor { color: #888; }
-
-  .avatar-desenvolvedor-fallback {
-    background: #2a2a2a;
-    color: #aaa;
-  }
-
-  .link-github {
-    color: #bbb;
-    border-color: #333;
-  }
-
-  .cartao-desenvolvedor:hover .link-github {
-    background: #f5f5f5;
-    border-color: #f5f5f5;
-    color: #0f0f0f;
   }
 }
