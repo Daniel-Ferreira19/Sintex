@@ -11,8 +11,8 @@ const desenvolvedores = [
     profile: 'https://github.com/barcelos00',
     initials: 'VB',
     social: {
-      linkedin: 'https://www.linkedin.com/in/victor-barcelos-0a1b2a1b2/',
-      instagram: 'https://www.instagram.com/barcelos00/',
+      linkedin: 'https://www.linkedin.com/in/victor-barcelos-1381ba17b',
+      instagram: 'https://www.instagram.com/barcelos_9/',
     },
   },
   {
@@ -22,8 +22,8 @@ const desenvolvedores = [
     profile: 'https://github.com/Daniel-Ferreira19',
     initials: 'DF',
     social: {
-      linkedin: 'https://www.linkedin.com/in/daniel-ferreira-19/',
-      instagram: 'https://www.instagram.com/daniel-ferreira19/',
+      linkedin: 'https://www.linkedin.com/in/danielferreira-dev/',
+      instagram: 'https://www.instagram.com/danieldev_07/',
     },
   },
   {
@@ -33,7 +33,7 @@ const desenvolvedores = [
     profile: 'https://github.com/layannesousa2025',
     initials: 'LS',
     social: {
-      linkedin: 'https://www.linkedin.com/in/layanne-sousa-0a1b2a1b2/',
+      linkedin: 'https://www.linkedin.com/in/layanne-sousa-ab64bb336/',
       instagram: 'https://www.instagram.com/layanne_souza_slv/',
     },
   },
