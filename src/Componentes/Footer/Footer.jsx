@@ -14,7 +14,7 @@ export default function Footer() {
                     <h4>Navegação</h4>
                     <ul>
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to="/about">Sobre</Link></li>
+                        <li><Link to="/about">About</Link></li>
                         <li><Link to="/admin">Admin</Link></li>
                     </ul>
                 </div>
@@ -23,17 +23,8 @@ export default function Footer() {
                     <h4>Contato</h4>
                     <ul>
                         <li><a href="mailto:contato@sintex.com">contato@sintex.com</a></li>
-                        <li><a href="tel:+55-1234-5678">(12) 3456-7890</a></li>
+                        <li><a href="tel:+55-1234-5678">(61) 9999-9999</a></li>
                     </ul>
-                </div>
-
-                <div className="footerSection">
-                    <h4>Redes Sociais</h4>
-                    <div className="socialLinks">
-                        <a href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
-                        <a href="#" target="_blank" rel="noopener noreferrer">Twitter</a>
-                        <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
-                    </div>
                 </div>
             </div>
 

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import './About.css';
 import daniel from './fotos/daniel.jpg';
 import victor from './fotos/barcelos.jpg';
@@ -11,6 +10,10 @@ const desenvolvedores = [
     img: victor,
     profile: 'https://github.com/barcelos00',
     initials: 'VB',
+    social: {
+      linkedin: 'https://www.linkedin.com/in/victor-barcelos-1381ba17b',
+      instagram: 'https://www.instagram.com/barcelos_9/',
+    },
   },
   {
     name: 'Daniel Ferreira',
@@ -18,6 +21,10 @@ const desenvolvedores = [
     img: daniel,
     profile: 'https://github.com/Daniel-Ferreira19',
     initials: 'DF',
+    social: {
+      linkedin: 'https://www.linkedin.com/in/danielferreira-dev/',
+      instagram: 'https://www.instagram.com/danieldev_07/',
+    },
   },
   {
     name: 'Layanne Sousa',
@@ -25,6 +32,10 @@ const desenvolvedores = [
     img: layanne,
     profile: 'https://github.com/layannesousa2025',
     initials: 'LS',
+    social: {
+      linkedin: 'https://www.linkedin.com/in/layanne-sousa-ab64bb336/',
+      instagram: 'https://www.instagram.com/layanne_souza_slv/',
+    },
   },
 ];
 
@@ -41,14 +52,15 @@ const IconeGitHub = () => (
   </svg>
 );
 
-const CartaoDesenvolvedor = ({ name, role, img, profile, initials }) => (
-  <a
-    href={profile}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="cartao-desenvolvedor"
-    aria-label={`Perfil do GitHub de ${name}`}
-  >
+const CartaoDesenvolvedor = ({
+  name,
+  role,
+  img,
+  profile,
+  initials,
+  social,
+}) => (
+  <div className="cartao-desenvolvedor">
     <div className="avatar-desenvolvedor-container">
       <img
         src={img}
@@ -69,11 +81,47 @@ const CartaoDesenvolvedor = ({ name, role, img, profile, initials }) => (
       <p className="cargo-desenvolvedor">{role}</p>
     </div>
 
-    <span className="link-github">
-      <IconeGitHub />
-      Ver perfil
-    </span>
-  </a>
+    <div className="redes-sociais-dev">
+      <a
+        href={profile}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="GitHub"
+      >
+        <IconeGitHub />
+      </a>
+
+      {social.linkedin && (
+        <a
+          href={social.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          LinkedIn
+        </a>
+      )}
+
+      {social.facebook && (
+        <a
+          href={social.facebook}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Facebook
+        </a>
+      )}
+
+      {social.instagram && (
+        <a
+          href={social.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Instagram
+        </a>
+      )}
+    </div>
+  </div>
 );
 
 const CartaoPilar = ({ title, children }) => (
@@ -96,21 +144,29 @@ export default function About() {
 
       <section className="introducao-sobre">
         <p>
-          O <strong>Sintex</strong> é uma plataforma inteligente projetada para estreitar o laço entre clientes e estabelecimentos gastronômicos, transformando avaliações em dados estratégicos e facilitando a descoberta de novas experiências.
+          O <strong>Sintex</strong> é uma plataforma inteligente projetada para
+          estreitar o laço entre clientes e estabelecimentos gastronômicos,
+          transformando avaliações em dados estratégicos e facilitando a
+          descoberta de novas experiências.
         </p>
       </section>
 
       <section className="secao-pilares" aria-label="Missão e visão">
         <CartaoPilar title="Missão">
-          Capacitar donos de restaurantes com ferramentas de análise precisas e oferecer aos consumidores um espaço transparente para compartilhar e encontrar opiniões reais.
+          Capacitar donos de restaurantes com ferramentas de análise precisas e
+          oferecer aos consumidores um espaço transparente para compartilhar e
+          encontrar opiniões reais.
         </CartaoPilar>
 
         <CartaoPilar title="Visão">
-          Tornar-se o ecossistema padrão para gestão de feedback e visibilidade digital no setor de alimentação, unindo tecnologia de ponta à simplicidade de uso.
+          Tornar-se o ecossistema padrão para gestão de feedback e visibilidade
+          digital no setor de alimentação, unindo tecnologia de ponta à
+          simplicidade de uso.
         </CartaoPilar>
 
         <CartaoPilar title="Valores">
-          Foco na experiência do usuário, transparência absoluta nas avaliações e a humanização dos dados para o fortalecimento do comércio local.
+          Foco na experiência do usuário, transparência absoluta nas avaliações e
+          a humanização dos dados para o fortalecimento do comércio local.
         </CartaoPilar>
       </section>
 
