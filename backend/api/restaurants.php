@@ -30,11 +30,24 @@ $restaurant = new Restaurant();
 
 // ============================================================================
 // GET /api/restaurants.php
-// Listar restaurantes com filtros
+// Listar restaurantes (Geral ou por Administrador)
 // ============================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id'])) {
     
-    // Obter filtros do URL
+    // ======== AQUI ESTÁ A ALTERAÇÃO ========
+    // Se o React enviou o ID do administrador logado na URL:
+    if (isset($_GET['admin_id'])) {
+        $admin_id = intval($_GET['admin_id']);
+        
+        // Usa a nova função que busca apenas o restaurante dele (com o cardápio)
+        $restaurantes = $restaurant->listarPorAdmin($admin_id);
+        
+        responderSucesso('Restaurantes do admin', ['restaurantes' => $restaurantes]);
+        exit(); // Encerra o script aqui
+    }
+    // =======================================
+
+    // Se NÃO tem admin_id, faz a busca geral (comum para a página Home)
     $filtros = [
         'cidade' => $_GET['cidade'] ?? '',
         'categoria' => $_GET['categoria'] ?? '',
@@ -44,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id'])) {
     $limite = intval($_GET['limite'] ?? 10);
     $pagina = intval($_GET['pagina'] ?? 1);
     
-    // Listar restaurantes
     $restaurantes = $restaurant->listar($filtros, $limite, $pagina);
     
     responderSucesso('Restaurantes listados', ['restaurantes' => $restaurantes]);
@@ -52,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id'])) {
 
 // ============================================================================
 // GET /api/restaurants.php?id=1
-// Obter detalhes de um restaurante
+// Obter detalhes de um restaurante específico
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
     
@@ -72,14 +84,6 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // ATENÇÃO: Para testar sem travar no React, desativei temporariamente a trava de sessão.
-    // O React usando fetch não envia cookies de sessão automaticamente sem configuração extra.
-    /*
-    if (!isset($_SESSION['user_id'])) {
-        responderErro('Usuário não autenticado', [], 401);
-    }
-    */
-    
     // Obter dados
     $dados = obterDadosJSON();
     
@@ -87,20 +91,17 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($dados['name'])) {
         responderErro('Nome do restaurante é obrigatório', [], 400);
     }
-    
     if (empty($dados['address'])) {
         responderErro('Endereço é obrigatório', [], 400);
     }
-    
     if (empty($dados['city'])) {
         responderErro('Cidade é obrigatória', [], 400);
     }
-    
     if (empty($dados['state'])) {
         responderErro('Estado é obrigatório', [], 400);
     }
     
-    // Definindo um ID de usuário fixo para testes (já que a sessão está comentada)
+    // Definindo um ID de usuário fixo para testes
     $user_id_teste = 1; 
     
     // Criar restaurante
@@ -119,24 +120,23 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     
-    /*
-    if (!isset($_SESSION['user_id'])) {
-        responderErro('Usuário não autenticado', [], 401);
-    }
-    */
-    
-    // Obter ID
+    // Obter ID do Restaurante
     if (!isset($_GET['id'])) {
         responderErro('ID do restaurante é obrigatório', [], 400);
     }
     
+    // Obter o ID do Admin que está salvando as alterações (enviado pelo React na URL)
+    if (!isset($_GET['admin_id'])) {
+        responderErro('ID do administrador é obrigatório para salvar', [], 403);
+    }
+    
     $id = intval($_GET['id']);
+    $admin_id = intval($_GET['admin_id']);
+    
     $dados = obterDadosJSON();
     
-    $user_id_teste = 1;
-    
-    // Atualizar
-    $resultado = $restaurant->atualizar($id, $user_id_teste, $dados);
+    // O método atualizar agora recebe o admin_id correto para garantir a segurança
+    $resultado = $restaurant->atualizar($id, $admin_id, $dados);
     
     if ($resultado['sucesso']) {
         responderSucesso($resultado['mensagem']);
@@ -150,12 +150,6 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 // Deletar restaurante
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    
-    /*
-    if (!isset($_SESSION['user_id'])) {
-        responderErro('Usuário não autenticado', [], 401);
-    }
-    */
     
     // Obter ID
     if (!isset($_GET['id'])) {

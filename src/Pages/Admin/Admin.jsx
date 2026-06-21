@@ -1,20 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Admin.css";
-import { getRestaurants } from "../../data/imagens/restaurants";
 
-// 1. Lógica pura movida para fora do componente para melhorar a performance
-const getCommentSentiment = (text) => {
-  const positive = ["otimo", "bom", "gostei", "amei", "excelente", "adorei", "perfeito", "delicioso", "maravilhoso", "incrivel"];
-  const negative = ["ruim", "horrivel", "pessimo", "detestei", "pior", "chato", "lento", "caro", "desagradavel", "problema"];
-
-  const lower = String(text).toLowerCase();
-  const posCount = positive.filter((w) => lower.includes(w)).length;
-  const negCount = negative.filter((w) => lower.includes(w)).length;
-
-  if (posCount > negCount) return "positive";
-  if (negCount > posCount) return "negative";
-  return "neutral";
+const getCommentSentiment = (stars) => {
+  if (stars >= 4) return "positive";
+  if (stars === 3) return "neutral";
+  return "negative";
 };
 
 export default function Admin() {
@@ -22,75 +13,107 @@ export default function Admin() {
   const [selectedId, setSelectedId] = useState("");
   const navigate = useNavigate();
 
-  // 2. Carga de dados (Agora buscando do PHP em vez do localStorage)
   useEffect(() => {
     async function loadRestaurants() {
-      const baseData = await getRestaurants(); // Dados originais do arquivo estático
-      let savedAdminData = [];
+      const adminId = localStorage.getItem("adminId");
 
-      try {
-        // Tenta buscar as edições salvas no banco de dados via PHP
-        const response = await fetch("http://localhost/Sintex/backend/api/restaurants.php");
-        if (response.ok) {
-          savedAdminData = await response.json();
-        }
-      } catch (error) {
-        console.error("Erro ao buscar dados do PHP. O banco está rodando?", error);
+      if (!adminId) {
+        navigate("/login");
+        return;
       }
 
-      const merged = baseData.map((restaurant) => {
-        // Procura se esse restaurante já tem alguma edição salva no banco
-        const adminItem = savedAdminData.find((item) => String(item.id) === String(restaurant.id));
+      try {
+        const response = await fetch(`http://localhost/Sintex/backend/api/restaurants.php?admin_id=${adminId}`);
         
-        return {
-          ...restaurant,
-          link: adminItem?.link || restaurant.link || "",
-          menu: adminItem?.menu || restaurant.menu || [],
-          likedBy: adminItem?.likedBy || restaurant.likedBy || [],
-          comments: adminItem?.comments || restaurant.feedback?.map((item, index) => ({
-            id: item.id ?? `feedback-${restaurant.id}-${index}`,
-            user: item.user || `Cliente ${index + 1}`,
-            text: item.comment || "",
-            timestamp: item.stars ? `${item.stars} estrelas` : "",
-          })) || [],
-        };
-      });
+        if (response.ok) {
+          const result = await response.json();
+          const adminRestaurants = result.dados?.restaurantes || [];
+          
+          const formattedRestaurants = adminRestaurants.map(r => ({
+            id: r.id,
+            name: r.nome || "",
+            address: r.endereco || "",
+            phone: r.telefone || "",
+            description: r.descricao || "",
+            type: r.categoria || "",
+            rating: r.avaliacao || "N/A",
+            link: r.link || "",
+            image: r.foto_url || "",
+            
+            menu: r.cardapio ? r.cardapio.map(item => ({
+              id: item.id,
+              dish: item.nome_item,
+              price: item.preco,
+              description: item.descricao
+            })) : [], 
+            
+            comments: r.feedbacks ? r.feedbacks.map(f => {
+              let extractedStars = 5;
+              let cleanText = f.comentario;
+              
+              const match = f.comentario.match(/^\[(\d) Estrelas\] (.*)/);
+              if (match) {
+                extractedStars = Number(match[1]);
+                cleanText = match[2];
+              }
 
-      setRestaurants(merged);
-      if (merged.length > 0) setSelectedId(String(merged[0].id));
+              return {
+                id: f.id,
+                user: f.nome_cliente,
+                text: cleanText,
+                stars: extractedStars,
+                timestamp: new Date(f.criado_em).toLocaleDateString('pt-BR')
+              };
+            }) : []
+          }));
+
+          setRestaurants(formattedRestaurants);
+          if (formattedRestaurants.length > 0) {
+            setSelectedId(String(formattedRestaurants[0].id));
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do PHP.", error);
+      }
     }
     loadRestaurants();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("userRole");
+    localStorage.removeItem("adminId");
     navigate("/login", { replace: true });
   };
 
-  // 3. Salvar as alterações no PHP (Substituindo o localStorage.setItem)
   const handleSaveRestaurant = async (updatedRestaurant) => {
     const nextRestaurants = restaurants.map((r) =>
       r.id === updatedRestaurant.id ? updatedRestaurant : r
     );
-
-    // Atualiza a tela imediatamente para o usuário (Optimistic Update)
     setRestaurants(nextRestaurants);
 
-    // Prepara apenas os dados que o admin edita para enviar ao backend
-    const payload = nextRestaurants.map(({ id, link, menu, likedBy, comments }) => ({
-      id, link, menu, likedBy, comments
-    }));
+    const adminId = localStorage.getItem("adminId");
+
+    // O payload agora envia os dados básicos também!
+    const payload = {
+      nome: updatedRestaurant.name,
+      categoria: updatedRestaurant.type,
+      descricao: updatedRestaurant.description,
+      endereco: updatedRestaurant.address,
+      telefone: updatedRestaurant.phone,
+      link: updatedRestaurant.link,
+      foto: updatedRestaurant.image, 
+      cardapio: updatedRestaurant.menu
+    };
 
     try {
-      await fetch("http://localhost/Sintex/backend/api/restaurants.php", {
-        method: "POST", // Enviando os dados atualizados para o PHP
-        headers: {
-          "Content-Type": "application/json",
-        },
+      await fetch(`http://localhost/Sintex/backend/api/restaurants.php?id=${updatedRestaurant.id}&admin_id=${adminId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      alert("Alterações salvas com sucesso!");
     } catch (error) {
-      console.error("Erro ao tentar salvar as alterações no servidor:", error);
+      alert("Erro ao salvar no banco de dados.");
     }
   };
 
@@ -103,20 +126,20 @@ export default function Admin() {
     <main className="AdminPage">
       <section className="AdminHeader">
         <h1>Área do Administrador</h1>
-        <p>Escolha um restaurante, atualize o link e o cardápio, e confira feedbacks positivos e negativos.</p>
+        <p>Atualize as informações do seu restaurante, o cardápio e confira o Dashboard de avaliações.</p>
         <button onClick={handleLogout} className="LogoutButton">Sair do Sistema</button>
       </section>
 
       <article className="AdminCard">
         <div className="RestaurantSelect">
-          <label htmlFor="restaurant-select">Restaurante do administrador</label>
+          <label htmlFor="restaurant-select">Seu Restaurante</label>
           <select
             id="restaurant-select"
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
           >
             {restaurants.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
+              <option key={r.id} value={r.id}>{r.name || "Sem Nome"}</option>
             ))}
           </select>
         </div>
@@ -133,11 +156,16 @@ export default function Admin() {
   );
 }
 
-// ----------------------------------------------------------------------
-// COMPONENTE: Editor de Restaurante (Mantido sem alterações)
-// ----------------------------------------------------------------------
 function RestaurantEditor({ restaurant, onSave }) {
+  // Novos estados para os dados básicos
+  const [editName, setEditName] = useState(restaurant.name || "");
+  const [editType, setEditType] = useState(restaurant.type || "");
+  const [editAddress, setEditAddress] = useState(restaurant.address || "");
+  const [editPhone, setEditPhone] = useState(restaurant.phone || "");
+  const [editDescription, setEditDescription] = useState(restaurant.description || "");
+  
   const [editLink, setEditLink] = useState(restaurant.link || "");
+  const [editImage, setEditImage] = useState(restaurant.image || "");
   const [editMenu, setEditMenu] = useState(restaurant.menu || []);
 
   const handleMenuItemChange = (index, field, value) => {
@@ -145,59 +173,96 @@ function RestaurantEditor({ restaurant, onSave }) {
   };
 
   const saveChanges = () => {
-    onSave({ ...restaurant, link: editLink, menu: editMenu });
+    onSave({ 
+      ...restaurant, 
+      name: editName,
+      type: editType,
+      address: editAddress,
+      phone: editPhone,
+      description: editDescription,
+      link: editLink, 
+      image: editImage, 
+      menu: editMenu 
+    });
   };
 
   return (
     <>
-      <h2>Dados do restaurante: {restaurant.name}</h2>
-      <div className="RestaurantMeta">
-        <span className="Rating">Avaliação: {restaurant.rating || "N/A"}</span>
-        <span>{restaurant.type}</span>
-      </div>
-      <p className="Description">{restaurant.description}</p>
+      <h2 style={{borderBottom: '2px solid #f0f0f0', paddingBottom: '10px', marginBottom: '20px'}}>
+        Perfil do Estabelecimento
+      </h2>
 
-      <div className="RestaurantLinkSection">
-        <label htmlFor="restaurant-link">Link do restaurante</label>
-        <input
-          id="restaurant-link"
-          className="TextInput"
-          type="url"
-          placeholder="https://www.exemplo.com"
-          value={editLink}
-          onChange={(e) => setEditLink(e.target.value)}
-        />
-        {editLink && (
-          <a href={editLink} target="_blank" rel="noreferrer" className="LinkButton">
-            Abrir link do restaurante
-          </a>
-        )}
-      </div>
-
-      <div className="PointsGrid">
-        <div className="PointsColumn positive">
-          <h3>Pontos positivos</h3>
-          <ul>
-            {restaurant.positives?.length > 0 
-              ? restaurant.positives.map((item) => <li key={item}>+ {item}</li>)
-              : <li>Sem pontos positivos cadastrados.</li>}
-          </ul>
+      {/* SEÇÃO: INFORMAÇÕES BÁSICAS */}
+      <div className="BasicInfoSection" style={{marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '15px'}}>
+        
+        <div>
+          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Nome do Restaurante</label>
+          <input className="TextInput" type="text" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Ex: Pizzaria Mamma Mia" />
         </div>
-        <div className="PointsColumn negative">
-          <h3>Pontos negativos</h3>
-          <ul>
-            {restaurant.negatives?.length > 0 
-              ? restaurant.negatives.map((item) => <li key={item}>- {item}</li>)
-              : <li>Sem pontos negativos cadastrados.</li>}
-          </ul>
+
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
+          <div>
+            <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Categoria</label>
+            <input className="TextInput" type="text" value={editType} onChange={(e) => setEditType(e.target.value)} placeholder="Ex: Italiana, Japonês, Fast Food" />
+          </div>
+          <div>
+            <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Telefone / WhatsApp</label>
+            <input className="TextInput" type="text" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="Ex: (11) 99999-9999" />
+          </div>
+        </div>
+
+        <div>
+          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Endereço Completo</label>
+          <input className="TextInput" type="text" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} placeholder="Rua, Número, Bairro, Cidade" />
+          <small style={{color: '#666'}}>Este endereço será usado para o botão "Ver no mapa" do cliente.</small>
+        </div>
+
+        <div>
+          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Descrição / Sobre o Restaurante</label>
+          <textarea className="TextArea" rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Conte um pouco sobre a história e os diferenciais do seu restaurante..." />
+        </div>
+
+      </div>
+
+      {/* SEÇÃO: LINKS E FOTOS */}
+      <div className="RestaurantLinkSection" style={{marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '8px'}}>
+        <h3 style={{marginTop: 0, marginBottom: '15px'}}>Mídia e Redes Sociais</h3>
+        
+        <div style={{marginBottom: '15px'}}>
+          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Link da Foto de Capa</label>
+          <input
+            className="TextInput"
+            type="url"
+            placeholder="https://link-da-imagem.com/foto.jpg"
+            value={editImage}
+            onChange={(e) => setEditImage(e.target.value)}
+          />
+          {editImage && (
+            <div style={{marginTop: '10px'}}>
+              <p style={{fontSize: '0.85rem', color: '#666', marginBottom: '5px'}}>Pré-visualização:</p>
+              <img src={editImage} alt="Preview" style={{width: '120px', height: '80px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #ddd'}} />
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Website ou Instagram (Link)</label>
+          <input
+            className="TextInput"
+            type="url"
+            placeholder="https://www.instagram.com/seurestaurante"
+            value={editLink}
+            onChange={(e) => setEditLink(e.target.value)}
+          />
         </div>
       </div>
 
+      {/* SEÇÃO: CARDÁPIO */}
       <div className="MenuSection">
         <div className="MenuSectionHeader">
-          <h3>Editar cardápio</h3>
+          <h3>Editar Cardápio</h3>
           <button type="button" className="AddMenuBtn" onClick={() => setEditMenu([...editMenu, { dish: "", price: "", description: "" }])}>
-            Adicionar item
+            + Adicionar Prato
           </button>
         </div>
         
@@ -208,84 +273,101 @@ function RestaurantEditor({ restaurant, onSave }) {
             <div key={index} className="MenuItem">
               <div className="MenuItemRow">
                 <div>
-                  <label>Prato</label>
-                  <input className="TextInput" value={item.dish} onChange={(e) => handleMenuItemChange(index, "dish", e.target.value)} placeholder="Ex: Pizza Calabresa" />
+                  <label>Nome do Prato</label>
+                  <input className="TextInput" value={item.dish || ""} onChange={(e) => handleMenuItemChange(index, "dish", e.target.value)} placeholder="Ex: Pizza Calabresa" />
                 </div>
                 <div>
                   <label>Preço</label>
-                  <input className="TextInput" value={item.price} onChange={(e) => handleMenuItemChange(index, "price", e.target.value)} placeholder="Ex: R$ 39,90" />
+                  <input className="TextInput" value={item.price || ""} onChange={(e) => handleMenuItemChange(index, "price", e.target.value)} placeholder="Ex: R$ 39,90" />
                 </div>
               </div>
               <div>
-                <label>Descrição do prato</label>
-                <textarea className="TextArea" rows={2} value={item.description || ""} onChange={(e) => handleMenuItemChange(index, "description", e.target.value)} placeholder="Descrição opcional do prato" />
+                <label>Descrição do prato (Opcional)</label>
+                <textarea className="TextArea" rows={2} value={item.description || ""} onChange={(e) => handleMenuItemChange(index, "description", e.target.value)} placeholder="Ingredientes e detalhes..." />
               </div>
               <div className="MenuItemActions">
                 <button type="button" className="MenuActionBtn danger" onClick={() => setEditMenu((prev) => prev.filter((_, i) => i !== index))}>
-                  Remover item
+                  Remover
                 </button>
               </div>
             </div>
           ))
         )}
-        <button type="button" className="SaveButton" onClick={saveChanges}>
-          Salvar alterações do restaurante
+        
+        {/* BOTÃO PRINCIPAL DE SALVAR */}
+        <button type="button" className="SaveButton" onClick={saveChanges} style={{marginTop: '20px', padding: '15px', fontSize: '1.1rem', width: '100%'}}>
+          💾 Salvar Todas as Alterações
         </button>
       </div>
 
+      {/* SEÇÃO: DASHBOARD DE FEEDBACKS */}
       <FeedbackViewer comments={restaurant.comments || []} />
-
-      <div className="LikesSection">
-        <h3>Curtidas: {restaurant.likedBy?.length || 0}</h3>
-        {restaurant.likedBy?.length > 0 ? (
-          <p className="LikesList">{restaurant.likedBy.join(", ")}</p>
-        ) : (
-          <p className="NoLikes">Nenhuma curtida ainda.</p>
-        )}
-      </div>
     </>
   );
 }
 
-// ----------------------------------------------------------------------
-// COMPONENTE: Visualizador de Feedbacks (Mantido sem alterações)
-// ----------------------------------------------------------------------
 function FeedbackViewer({ comments }) {
   const [filterType, setFilterType] = useState("all");
 
   const filteredComments = useMemo(() => {
     if (filterType === "all") return comments;
-    return comments.filter((comment) => getCommentSentiment(comment.text) === filterType);
+    return comments.filter((comment) => getCommentSentiment(comment.stars) === filterType);
   }, [comments, filterType]);
 
+  const total = comments.length;
+  const average = total === 0 ? 0 : (comments.reduce((acc, c) => acc + c.stars, 0) / total).toFixed(1);
+  const positives = comments.filter(c => getCommentSentiment(c.stars) === "positive").length;
+  const negatives = comments.filter(c => getCommentSentiment(c.stars) === "negative").length;
+
   return (
-    <div className="FeedbackSection">
-      <h3>Feedback dos clientes</h3>
-      <div className="FeedbackFilter">
+    <div className="FeedbackSection" style={{marginTop: '40px', borderTop: '2px solid #f0f0f0', paddingTop: '20px'}}>
+      <h3>Dashboard de Avaliações</h3>
+      
+      <div className="DashboardGrid">
+        <div className="DashCard">
+          <h4>Nota Geral</h4>
+          <span className="DashValue">{average} ⭐</span>
+        </div>
+        <div className="DashCard">
+          <h4>Total de Avaliações</h4>
+          <span className="DashValue">{total}</span>
+        </div>
+        <div className="DashCard positive">
+          <h4>Positivos</h4>
+          <span className="DashValue">{positives}</span>
+        </div>
+        <div className="DashCard negative">
+          <h4>Atenção (Críticas)</h4>
+          <span className="DashValue">{negatives}</span>
+        </div>
+      </div>
+
+      <div className="FeedbackFilter" style={{ marginTop: '20px' }}>
         <button className={`FilterBtn ${filterType === "all" ? "active" : ""}`} onClick={() => setFilterType("all")}>
-          Todos ({comments.length})
+          Todos
         </button>
         <button className={`FilterBtn positive ${filterType === "positive" ? "active" : ""}`} onClick={() => setFilterType("positive")}>
-          ✅ Positivos ({comments.filter((c) => getCommentSentiment(c.text) === "positive").length})
+          ✅ Melhores (4 e 5 estrelas)
         </button>
         <button className={`FilterBtn negative ${filterType === "negative" ? "active" : ""}`} onClick={() => setFilterType("negative")}>
-          ❌ Negativos ({comments.filter((c) => getCommentSentiment(c.text) === "negative").length})
+          ❌ Piores (1 e 2 estrelas)
         </button>
       </div>
       
-      <div className="CommentsList">
-        {filteredComments.length > 0 ? (
+      <div className="CommentsCarousel">
+        {filteredComments?.length > 0 ? (
           filteredComments.map((comment) => (
-            <div key={comment.id} className={`CommentCard ${getCommentSentiment(comment.text)}`}>
+            <div key={comment.id} className={`CommentCard ${getCommentSentiment(comment.stars)}`}>
               <div className="CommentHeader">
                 <strong>{comment.user}</strong>
-                <span className="CommentTime">{comment.timestamp}</span>
+                <span className="CommentTime">{comment.stars} ⭐</span>
               </div>
               <p className="CommentText">{comment.text}</p>
+              <small style={{display: 'block', marginTop: '10px', color: '#666'}}>{comment.timestamp}</small>
             </div>
           ))
         ) : (
-          <p className="NoComments">Nenhum feedback disponível nesta categoria.</p>
+          <p className="NoComments">Nenhum feedback nesta categoria.</p>
         )}
       </div>
     </div>

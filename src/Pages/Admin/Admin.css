@@ -548,3 +548,95 @@
     gap: 6px;
   }
 }
+
+/* =========================================================
+   DASHBOARD E CARROSSEL DE FEEDBACKS
+   ========================================================= */
+
+/* Grid do Dashboard (Admin) */
+.DashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.DashCard {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 4px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.DashCard h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.DashValue {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.DashCard.positive { border-left-color: #28a745; }
+.DashCard.negative { border-left-color: #dc3545; }
+
+/* O Carrossel CSS Nativo */
+.CommentsCarousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding-bottom: 15px;
+  margin-top: 15px;
+  /* Isso faz o scroll parar certinho no card (efeito carrossel mobile) */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Esconde a barra de rolagem feia no Windows/Chrome */
+.CommentsCarousel::-webkit-scrollbar {
+  height: 8px;
+}
+.CommentsCarousel::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.CommentCard {
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+  /* Largura fixa para os cards no carrossel */
+  flex: 0 0 280px; 
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+}
+
+.CommentHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 5px;
+}
+/* Se quiser estilizar diretamente pela classe, adicione uma class="AdminPreviewImg" na tag img, ou use assim: */
+.RestaurantLinkSection img {
+  width: 100%;            /* Se quiser que ela ocupe toda a largura da seção */
+  max-width: 300px;       /* Ou um limite máximo para não ficar gigante na tela */
+  height: 180px;          /* ALTURA FIXA para o painel */
+  object-fit: cover;      /* MÁGICA AQUI: Faz a tag <img> se comportar como o background-size */
+  object-position: center;/* Mantém o foco no centro da imagem */
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.CommentCard.positive { border-top: 4px solid #28a745; }
+.CommentCard.negative { border-top: 4px solid #dc3545; }
+.CommentCard.neutral { border-top: 4px solid #ffc107; }

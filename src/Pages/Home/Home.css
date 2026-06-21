@@ -60,13 +60,15 @@
 
 /* O Header agora é o banner com a imagem */
 .ClientCardHeader {
-  position: relative;
-  min-height: 140px; /* Altura do banner */
-  background-size: cover;
-  background-position: center;
+  width: 100%;            /* Ocupa toda a largura do card */
+  height: 200px;          /* ALTURA FIXA: Defina aqui a altura que você achar mais bonita */
+  background-size: cover; /* MÁGICA AQUI: Força a imagem a preencher o espaço sem distorcer */
+  background-position: center; /* Centraliza a foto para não cortar o topo ou os lados errado */
   background-repeat: no-repeat;
-  display: flex;
-  align-items: center;
+  position: relative;
+  border-top-left-radius: 8px;  /* Mantém as bordinhas arredondadas se o seu card tiver */
+  border-top-right-radius: 8px;
+  overflow: hidden;
 }
 
 /* O degradê escuro da esquerda para a direita para leitura do texto */
@@ -302,3 +304,83 @@
   background-color: #a18c23;
 }
 
+/* =========================================================
+   DASHBOARD E CARROSSEL DE FEEDBACKS
+   ========================================================= */
+
+/* Grid do Dashboard (Admin) */
+.DashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.DashCard {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 4px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.DashCard h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.DashValue {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.DashCard.positive { border-left-color: #28a745; }
+.DashCard.negative { border-left-color: #dc3545; }
+
+/* O Carrossel CSS Nativo */
+.CommentsCarousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding-bottom: 15px;
+  margin-top: 15px;
+  /* Isso faz o scroll parar certinho no card (efeito carrossel mobile) */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Esconde a barra de rolagem feia no Windows/Chrome */
+.CommentsCarousel::-webkit-scrollbar {
+  height: 8px;
+}
+.CommentsCarousel::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.CommentCard {
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+  /* Largura fixa para os cards no carrossel */
+  flex: 0 0 280px; 
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+}
+
+.CommentHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 5px;
+}
+
+.CommentCard.positive { border-top: 4px solid #28a745; }
+.CommentCard.negative { border-top: 4px solid #dc3545; }
+.CommentCard.neutral { border-top: 4px solid #ffc107; }

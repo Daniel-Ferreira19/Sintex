@@ -1,16 +1,7 @@
 <?php
 /**
  * ARQUIVO: models/Restaurant.php
- * PROPÓSITO: Gerenciar restaurantes
- * 
- * EXPLICAÇÃO:
- * Métodos para:
- * - Listar restaurantes (com filtros)
- * - Obter detalhes de um restaurante
- * - Criar novo restaurante
- * - Editar restaurante
- * - Deletar restaurante
- * - Calcular média de avaliações
+ * PROPÓSITO: Gerenciar restaurantes (Adaptado para o banco em Português com Fotos e Feedbacks)
  */
 
 require_once __DIR__ . '/../config/db.php';
@@ -22,105 +13,66 @@ class Restaurant {
         $this->pdo = getDB();
     }
     
-    /**
-     * MÉTODO: listar()
-     * Lista restaurantes com filtros opcionais
-     * 
-     * @param array $filtros - ['cidade' => '', 'categoria' => '', 'busca' => '']
-     * @param int $limite - Quantidade de resultados por página
-     * @param int $pagina - Número da página
-     * @return array - Lista de restaurantes
-     */
-    public function listar($filtros = [], $limite = 10, $pagina = 1) {
+    // ========================================================================
+    // MÉTODOS PÚBLICOS (Para a página HOME - Visão do Cliente)
+    // ========================================================================
+
+   public function listar($filtros = [], $limite = 10, $pagina = 1) {
         try {
             $offset = ($pagina - 1) * $limite;
-            
-            $sql = "SELECT * FROM restaurants WHERE 1=1";
+            $sql = "SELECT * FROM restaurantes WHERE 1=1";
             $parametros = [];
             
-            // FILTRO: Por cidade
-            if (!empty($filtros['cidade'])) {
-                $sql .= " AND city LIKE ?";
-                $parametros[] = "%{$filtros['cidade']}%";
-            }
-            
-            // FILTRO: Por categoria
-            if (!empty($filtros['categoria'])) {
-                $sql .= " AND category LIKE ?";
-                $parametros[] = "%{$filtros['categoria']}%";
-            }
-            
-            // FILTRO: Busca por nome ou endereço
+            // Filtro de busca na Home
             if (!empty($filtros['busca'])) {
-                $sql .= " AND (name LIKE ? OR address LIKE ?)";
+                $sql .= " AND (nome LIKE ? OR endereco LIKE ?)";
                 $parametros[] = "%{$filtros['busca']}%";
                 $parametros[] = "%{$filtros['busca']}%";
             }
             
-            // Ordenar por avaliação
-            $sql .= " ORDER BY rating DESC LIMIT ? OFFSET ?";
-            $parametros[] = $limite;
-            $parametros[] = $offset;
+            // A CORREÇÃO MÁGICA: Concatena os inteiros direto no SQL!
+            $sql .= " LIMIT " . (int)$limite . " OFFSET " . (int)$offset;
             
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($parametros);
+            $restaurantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Busca os cardápios e feedbacks
+            foreach ($restaurantes as &$rest) {
+                $stmtCard = $this->pdo->prepare("SELECT id, nome_item, preco, descricao FROM cardapios WHERE restaurante_id = ?");
+                $stmtCard->execute([$rest['id']]);
+                $rest['cardapio'] = $stmtCard->fetchAll(PDO::FETCH_ASSOC);
+
+                $stmtFeed = $this->pdo->prepare("SELECT id, nome_cliente, comentario, criado_em FROM feedbacks WHERE restaurante_id = ? ORDER BY criado_em DESC");
+                $stmtFeed->execute([$rest['id']]);
+                $rest['feedbacks'] = $stmtFeed->fetchAll(PDO::FETCH_ASSOC);
+            }
             
-            return $stmt->fetchAll();
+            return $restaurantes;
             
         } catch (PDOException $e) {
             return [];
         }
     }
     
-    /**
-     * MÉTODO: obter()
-     * Obtém detalhes completos de um restaurante
-     * 
-     * @param int $id - ID do restaurante
-     * @return array - Dados do restaurante com cardápio e horários
-     */
     public function obter($id) {
         try {
-            // Obter dados principais
-            $stmt = $this->pdo->prepare("SELECT * FROM restaurants WHERE id = ?");
+            // Obter dados principais do restaurante
+            $stmt = $this->pdo->prepare("SELECT * FROM restaurantes WHERE id = ?");
             $stmt->execute([$id]);
-            $restaurante = $stmt->fetch();
+            $restaurante = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$restaurante) return null;
             
-            // Obter cardápio
-            $stmt = $this->pdo->prepare(
-                "SELECT mc.id, mc.name, mc.description, 
-                        GROUP_CONCAT(
-                            JSON_OBJECT('id', mi.id, 'name', mi.name, 'description', mi.description, 'price', mi.price, 'image_url', mi.image_url)
-                        ) as items
-                 FROM menu_categories mc
-                 LEFT JOIN menu_items mi ON mi.menu_category_id = mc.id
-                 WHERE mc.restaurant_id = ?
-                 GROUP BY mc.id
-                 ORDER BY mc.order"
-            );
-            $stmt->execute([$id]);
-            $restaurante['cardapio'] = $stmt->fetchAll();
-            
-            // Obter horários
-            $stmt = $this->pdo->prepare(
-                "SELECT day_of_week, opening_time, closing_time, is_closed 
-                 FROM business_hours 
-                 WHERE restaurant_id = ? 
-                 ORDER BY day_of_week"
-            );
-            $stmt->execute([$id]);
-            $restaurante['horarios'] = $stmt->fetchAll();
-            
-            // Obter uploads de cardápio
-            $stmt = $this->pdo->prepare(
-                "SELECT id, file_type, file_url, file_name, uploaded_at 
-                 FROM menu_uploads 
-                 WHERE restaurant_id = ?"
-            );
-            $stmt->execute([$id]);
-            $restaurante['uploads'] = $stmt->fetchAll();
+            // Puxando o cardápio
+            $stmtMenu = $this->pdo->prepare("SELECT id, nome_item, preco, descricao FROM cardapios WHERE restaurante_id = ?");
+            $stmtMenu->execute([$id]);
+            $restaurante['cardapio'] = $stmtMenu->fetchAll(PDO::FETCH_ASSOC);
+
+            // Puxando os feedbacks
+            $stmtFeed = $this->pdo->prepare("SELECT id, nome_cliente, comentario, criado_em FROM feedbacks WHERE restaurante_id = ? ORDER BY criado_em DESC");
+            $stmtFeed->execute([$id]);
+            $restaurante['feedbacks'] = $stmtFeed->fetchAll(PDO::FETCH_ASSOC);
             
             return $restaurante;
             
@@ -128,172 +80,154 @@ class Restaurant {
             return null;
         }
     }
-    
-    /**
-     * MÉTODO: criar()
-     * Cria um novo restaurante
-     * 
-     * @param int $user_id - ID do proprietário
-     * @param array $dados - Dados do restaurante
-     * @return array - Resposta com ID do novo restaurante
-     */
+
+    // ========================================================================
+    // MÉTODOS PRIVADOS (Para a página ADMIN - Visão do Dono)
+    // ========================================================================
+
+    public function listarPorAdmin($admin_id) {
+        try {
+            // Pega APENAS os restaurantes que pertencem ao administrador logado
+            $sql = "SELECT r.* FROM restaurantes r
+                    INNER JOIN administrador_restaurante ar ON r.id = ar.restaurante_id
+                    WHERE ar.administrador_id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$admin_id]);
+            $restaurantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($restaurantes as &$rest) {
+                // Busca o cardápio
+                $sqlCardapio = "SELECT id, nome_item, preco, descricao FROM cardapios WHERE restaurante_id = ?";
+                $stmtCard = $this->pdo->prepare($sqlCardapio);
+                $stmtCard->execute([$rest['id']]);
+                $rest['cardapio'] = $stmtCard->fetchAll(PDO::FETCH_ASSOC);
+
+                // Busca os feedbacks para mostrar no Dashboard
+                $sqlFeedback = "SELECT id, nome_cliente, comentario, criado_em FROM feedbacks WHERE restaurante_id = ? ORDER BY criado_em DESC";
+                $stmtFeed = $this->pdo->prepare($sqlFeedback);
+                $stmtFeed->execute([$rest['id']]);
+                $rest['feedbacks'] = $stmtFeed->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            return $restaurantes;
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function atualizar($id, $admin_id, $dados) {
+        try {
+            // SEGURANÇA: Verificar se o restaurante realmente pertence a este admin
+            $sqlCheck = "SELECT restaurante_id FROM administrador_restaurante 
+                         WHERE restaurante_id = ? AND administrador_id = ?";
+            $stmtCheck = $this->pdo->prepare($sqlCheck);
+            $stmtCheck->execute([$id, $admin_id]);
+            
+            if ($stmtCheck->rowCount() === 0) {
+                return ['sucesso' => false, 'mensagem' => 'Acesso negado. Este restaurante não é seu.'];
+            }
+            
+            // Inicia a transação
+            $this->pdo->beginTransaction();
+
+            // 1. Atualiza TODOS os dados básicos do Restaurante
+            $sqlUpd = "UPDATE restaurantes SET nome = ?, categoria = ?, descricao = ?, endereco = ?, telefone = ?, foto_url = ? WHERE id = ?";
+            $stmtUpd = $this->pdo->prepare($sqlUpd);
+            $stmtUpd->execute([
+                $dados['nome'] ?? 'Restaurante Sem Nome',
+                $dados['categoria'] ?? null,
+                $dados['descricao'] ?? null,
+                $dados['endereco'] ?? null,
+                $dados['telefone'] ?? null,
+                $dados['foto'] ?? null,
+                $id
+            ]);
+
+            // 2. Atualiza o Cardápio
+            if (isset($dados['cardapio']) && is_array($dados['cardapio'])) {
+                $sqlDelMenu = "DELETE FROM cardapios WHERE restaurante_id = ?";
+                $stmtDelMenu = $this->pdo->prepare($sqlDelMenu);
+                $stmtDelMenu->execute([$id]);
+
+                if (count($dados['cardapio']) > 0) {
+                    $sqlInsMenu = "INSERT INTO cardapios (restaurante_id, nome_item, preco, descricao) VALUES (?, ?, ?, ?)";
+                    $stmtInsMenu = $this->pdo->prepare($sqlInsMenu);
+                    
+                    foreach ($dados['cardapio'] as $item) {
+                        if (!empty($item['dish'])) {
+                            $stmtInsMenu->execute([
+                                $id, 
+                                $item['dish'], 
+                                $item['price'] ?? '', 
+                                $item['description'] ?? ''
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            $this->pdo->commit();
+            return ['sucesso' => true, 'mensagem' => 'Restaurante atualizado com sucesso!'];
+            
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            return ['sucesso' => false, 'mensagem' => $e->getMessage()];
+        }
+    }
+
+    // ========================================================================
+    // MÉTODOS DE ESTRUTURA (Criar e Deletar)
+    // ========================================================================
+
     public function criar($user_id, $dados) {
         try {
-            $sql = "INSERT INTO restaurants (
-                        user_id, name, description, category, phone, whatsapp, 
-                        instagram, website, address, city, state, zip_code, 
-                        latitude, longitude, google_maps_url, logo_url, cover_image_url
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
+            // Insere o restaurante
+            $sql = "INSERT INTO restaurantes (nome, endereco, telefone, email) VALUES (?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
             
             $stmt->execute([
-                $user_id,
-                $dados['name'] ?? null,
-                $dados['description'] ?? null,
-                $dados['category'] ?? null,
-                $dados['phone'] ?? null,
-                $dados['whatsapp'] ?? null,
-                $dados['instagram'] ?? null,
-                $dados['website'] ?? null,
-                $dados['address'] ?? null,
-                $dados['city'] ?? null,
-                $dados['state'] ?? null,
-                $dados['zip_code'] ?? null,
-                $dados['latitude'] ?? null,
-                $dados['longitude'] ?? null,
-                $dados['google_maps_url'] ?? null,
-                $dados['logo_url'] ?? null,
-                $dados['cover_image_url'] ?? null
+                $dados['nome'] ?? $dados['name'] ?? 'Novo Restaurante',
+                $dados['endereco'] ?? $dados['address'] ?? null,
+                $dados['telefone'] ?? $dados['phone'] ?? null,
+                $dados['email'] ?? null
             ]);
             
+            $restaurante_id = $this->pdo->lastInsertId();
+
+            // Vincula o administrador como 'dono'
+            $sqlVinculo = "INSERT INTO administrador_restaurante (administrador_id, restaurante_id, permissao) VALUES (?, ?, 'dono')";
+            $stmtVinculo = $this->pdo->prepare($sqlVinculo);
+            $stmtVinculo->execute([$user_id, $restaurante_id]);
+
             return [
                 'sucesso' => true,
                 'mensagem' => 'Restaurante criado',
-                'id' => $this->pdo->lastInsertId()
+                'id' => $restaurante_id
             ];
             
         } catch (PDOException $e) {
             return ['sucesso' => false, 'mensagem' => $e->getMessage()];
         }
     }
-    
-    /**
-     * MÉTODO: atualizar()
-     * Atualiza dados do restaurante
-     * 
-     * @param int $id - ID do restaurante
-     * @param int $user_id - ID do proprietário (verificação)
-     * @param array $dados - Dados a atualizar
-     * @return array - Resposta de sucesso ou erro
-     */
-    public function atualizar($id, $user_id, $dados) {
-        try {
-            // Verificar se pertence ao usuário
-            $stmt = $this->pdo->prepare("SELECT user_id FROM restaurants WHERE id = ?");
-            $stmt->execute([$id]);
-            $restaurante = $stmt->fetch();
-            
-            if (!$restaurante || $restaurante['user_id'] != $user_id) {
-                return ['sucesso' => false, 'mensagem' => 'Acesso negado'];
-            }
-            
-            $permitidos = [
-                'name', 'description', 'category', 'phone', 'whatsapp',
-                'instagram', 'website', 'address', 'city', 'state',
-                'zip_code', 'latitude', 'longitude', 'google_maps_url',
-                'logo_url', 'cover_image_url'
-            ];
-            
-            $atualizacoes = [];
-            $valores = [];
-            
-            foreach ($permitidos as $campo) {
-                if (isset($dados[$campo])) {
-                    $atualizacoes[] = "$campo = ?";
-                    $valores[] = $dados[$campo];
-                }
-            }
-            
-            if (empty($atualizacoes)) {
-                return ['sucesso' => false, 'mensagem' => 'Nenhum campo para atualizar'];
-            }
-            
-            $valores[] = $id;
-            $sql = "UPDATE restaurants SET " . implode(', ', $atualizacoes) . " WHERE id = ?";
-            
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($valores);
-            
-            return ['sucesso' => true, 'mensagem' => 'Restaurante atualizado'];
-            
-        } catch (PDOException $e) {
-            return ['sucesso' => false, 'mensagem' => $e->getMessage()];
-        }
-    }
-    
-    /**
-     * MÉTODO: deletar()
-     * Deleta um restaurante
-     * 
-     * @param int $id - ID do restaurante
-     * @param int $user_id - ID do proprietário (verificação)
-     * @return array - Resposta de sucesso ou erro
-     */
+
     public function deletar($id, $user_id) {
         try {
-            // Verificar propriedade
-            $stmt = $this->pdo->prepare("SELECT user_id FROM restaurants WHERE id = ?");
-            $stmt->execute([$id]);
-            $restaurante = $stmt->fetch();
+            // Verifica permissão
+            $stmt = $this->pdo->prepare("SELECT * FROM administrador_restaurante WHERE restaurante_id = ? AND administrador_id = ?");
+            $stmt->execute([$id, $user_id]);
             
-            if (!$restaurante || $restaurante['user_id'] != $user_id) {
+            if ($stmt->rowCount() === 0) {
                 return ['sucesso' => false, 'mensagem' => 'Acesso negado'];
             }
             
-            // Deletar (as imagens devem ser deletadas manualmente)
-            $stmt = $this->pdo->prepare("DELETE FROM restaurants WHERE id = ?");
-            $stmt->execute([$id]);
+            // Deleta o restaurante (Cardápios e Feedbacks devem apagar juntos se o BD tiver ON DELETE CASCADE configurado)
+            $stmtDel = $this->pdo->prepare("DELETE FROM restaurantes WHERE id = ?");
+            $stmtDel->execute([$id]);
             
-            return ['sucesso' => true, 'mensagem' => 'Restaurante deletado'];
+            return ['sucesso' => true, 'mensagem' => 'Restaurante deletado com sucesso'];
             
         } catch (PDOException $e) {
             return ['sucesso' => false, 'mensagem' => $e->getMessage()];
-        }
-    }
-    
-    /**
-     * MÉTODO: atualizarAvaliacao()
-     * Calcula e atualiza a média de avaliações
-     * 
-     * @param int $restaurant_id - ID do restaurante
-     * @return void
-     */
-    public function atualizarAvaliacao($restaurant_id) {
-        try {
-            // Calcular média e contar avaliações
-            $stmt = $this->pdo->prepare(
-                "SELECT AVG(rating) as media, COUNT(*) as total 
-                 FROM ratings 
-                 WHERE restaurant_id = ?"
-            );
-            $stmt->execute([$restaurant_id]);
-            $resultado = $stmt->fetch();
-            
-            // Atualizar restaurante
-            $stmt = $this->pdo->prepare(
-                "UPDATE restaurants 
-                 SET rating = ?, total_ratings = ? 
-                 WHERE id = ?"
-            );
-            $stmt->execute([
-                round($resultado['media'], 2) ?? 0,
-                $resultado['total'] ?? 0,
-                $restaurant_id
-            ]);
-            
-        } catch (PDOException $e) {
-            // Silenciosamente falha
         }
     }
 }

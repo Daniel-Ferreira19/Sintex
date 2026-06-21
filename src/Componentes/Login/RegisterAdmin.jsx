@@ -22,14 +22,13 @@ export default function RegisterAdmin() {
     e.preventDefault();
 
     try {
-      // Garçom calibrado para bater na rota externa do Apache
       const response = await fetch("http://localhost/Sintex/backend/php/register.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.senha,      // 'password' casa com o PHP
-          restaurant: formData.restaurant // 'restaurant' casa com o PHP
+          password: formData.senha,      
+          restaurant: formData.restaurant 
         }),
       });
 
@@ -45,7 +44,13 @@ export default function RegisterAdmin() {
 
       // Cadastro concluído com sucesso!
       alert(result.message);
+      
+      // Salva a permissão E o ID gerado pelos 3 INSERTS do banco
       localStorage.setItem("userRole", "admin");
+      if (result.admin_id) {
+        localStorage.setItem("adminId", result.admin_id); 
+      }
+      
       navigate(routeState.from?.pathname || "/admin", { replace: true });
 
     } catch (error) {
@@ -85,15 +90,3 @@ export default function RegisterAdmin() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-

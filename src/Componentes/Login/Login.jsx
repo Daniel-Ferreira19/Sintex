@@ -16,7 +16,6 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      // Conexão direta com o servidor Apache (Cozinha)
       const resposta = await fetch("http://localhost/Sintex/backend/php/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -26,12 +25,14 @@ export default function Login() {
       const resultado = await resposta.json();
 
       if (!resultado.success) {
-        setMensagem(resultado.message); // Exibe o erro do banco na tela
+        setMensagem(resultado.message);
         return;
       }
 
-      // Se deu certo, ativa o passe livre e redireciona
+      // Salva a permissão E o ID do usuário retornado pelo PHP
       localStorage.setItem("userRole", "admin");
+      localStorage.setItem("adminId", resultado.user.id); 
+      
       const paginaAnterior = location.state?.from?.pathname || "/admin";
       navigate(paginaAnterior, { replace: true });
 
