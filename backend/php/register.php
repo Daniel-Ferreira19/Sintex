@@ -1,12 +1,32 @@
 <?php
+// ==========================================
+// 1. CABEÇALHOS CORS E JSON
+// ==========================================
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Methods: POST, OPTIONS"); // Liberando o OPTIONS
 header("Content-Type: application/json; charset=UTF-8");
+
+// ==========================================
+// 2. INTERCEPTADOR PRE-FLIGHT (Resolve o bloqueio do navegador)
+// ==========================================
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 include "db.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
+
+// Prevenção extra: se o JSON não enviar algum dos campos, avisamos o React
+if (!isset($data["email"]) || !isset($data["password"]) || !isset($data["restaurant"])) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Dados incompletos. Preencha todos os campos."
+    ]);
+    exit;
+}
 
 $email = trim($data["email"]);
 $senhaCriptografada = password_hash($data["password"], PASSWORD_DEFAULT);
@@ -65,3 +85,4 @@ if ($stmt->execute()) {
         "message" => "Erro ao salvar no banco de dados."
     ]);
 }
+?>

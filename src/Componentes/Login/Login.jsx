@@ -17,7 +17,7 @@ export default function Login() {
 
     try {
       // Conexão direta com o servidor Apache (Cozinha)
-      const resposta = await fetch("http://localhost/sintex/Sintex/php/login.php", {
+      const resposta = await fetch("http://localhost/Sintex/backend/php/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: senha }), 

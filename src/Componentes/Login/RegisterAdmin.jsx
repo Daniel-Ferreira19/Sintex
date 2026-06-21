@@ -23,7 +23,7 @@ export default function RegisterAdmin() {
 
     try {
       // Garçom calibrado para bater na rota externa do Apache
-      const response = await fetch("http://localhost/sintex/Sintex/php/register.php", {
+      const response = await fetch("http://localhost/Sintex/backend/php/register.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

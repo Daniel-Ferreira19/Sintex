@@ -22,14 +22,26 @@ export default function Admin() {
   const [selectedId, setSelectedId] = useState("");
   const navigate = useNavigate();
 
-  // 2. Carga de dados enxuta
+  // 2. Carga de dados (Agora buscando do PHP em vez do localStorage)
   useEffect(() => {
     async function loadRestaurants() {
-      const data = await getRestaurants();
-      const savedData = JSON.parse(localStorage.getItem("restaurantsAdminData") || "[]");
+      const baseData = await getRestaurants(); // Dados originais do arquivo estático
+      let savedAdminData = [];
 
-      const merged = data.map((restaurant) => {
-        const adminItem = savedData.find((item) => item.id === restaurant.id);
+      try {
+        // Tenta buscar as edições salvas no banco de dados via PHP
+        const response = await fetch("http://localhost/Sintex/backend/api/restaurants.php");
+        if (response.ok) {
+          savedAdminData = await response.json();
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do PHP. O banco está rodando?", error);
+      }
+
+      const merged = baseData.map((restaurant) => {
+        // Procura se esse restaurante já tem alguma edição salva no banco
+        const adminItem = savedAdminData.find((item) => String(item.id) === String(restaurant.id));
+        
         return {
           ...restaurant,
           link: adminItem?.link || restaurant.link || "",
@@ -55,18 +67,31 @@ export default function Admin() {
     navigate("/login", { replace: true });
   };
 
-  const handleSaveRestaurant = (updatedRestaurant) => {
+  // 3. Salvar as alterações no PHP (Substituindo o localStorage.setItem)
+  const handleSaveRestaurant = async (updatedRestaurant) => {
     const nextRestaurants = restaurants.map((r) =>
       r.id === updatedRestaurant.id ? updatedRestaurant : r
     );
 
+    // Atualiza a tela imediatamente para o usuário (Optimistic Update)
     setRestaurants(nextRestaurants);
-    localStorage.setItem(
-      "restaurantsAdminData",
-      JSON.stringify(nextRestaurants.map(({ id, link, menu, likedBy, comments }) => ({
-        id, link, menu, likedBy, comments
-      })))
-    );
+
+    // Prepara apenas os dados que o admin edita para enviar ao backend
+    const payload = nextRestaurants.map(({ id, link, menu, likedBy, comments }) => ({
+      id, link, menu, likedBy, comments
+    }));
+
+    try {
+      await fetch("http://localhost/Sintex/backend/api/restaurants.php", {
+        method: "POST", // Enviando os dados atualizados para o PHP
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.error("Erro ao tentar salvar as alterações no servidor:", error);
+    }
   };
 
   const selectedRestaurant = useMemo(
@@ -97,7 +122,6 @@ export default function Admin() {
         </div>
 
         {selectedRestaurant && (
-          // Usando a "key" com o ID força o React a resetar os states do componente filho ao trocar de restaurante
           <RestaurantEditor 
             key={selectedRestaurant.id} 
             restaurant={selectedRestaurant} 
@@ -110,7 +134,7 @@ export default function Admin() {
 }
 
 // ----------------------------------------------------------------------
-// COMPONENTE: Editor de Restaurante (Link e Menu)
+// COMPONENTE: Editor de Restaurante (Mantido sem alterações)
 // ----------------------------------------------------------------------
 function RestaurantEditor({ restaurant, onSave }) {
   const [editLink, setEditLink] = useState(restaurant.link || "");
@@ -224,7 +248,7 @@ function RestaurantEditor({ restaurant, onSave }) {
 }
 
 // ----------------------------------------------------------------------
-// COMPONENTE: Visualizador de Feedbacks (Lógica de Sentimentos Isolada)
+// COMPONENTE: Visualizador de Feedbacks (Mantido sem alterações)
 // ----------------------------------------------------------------------
 function FeedbackViewer({ comments }) {
   const [filterType, setFilterType] = useState("all");
