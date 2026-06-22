@@ -72,7 +72,8 @@ export default function Admin() {
             setSelectedId(String(formattedRestaurants[0].id));
           }
         }
-      } catch (error) {
+      }
+       catch (error) {
         console.error("Erro ao buscar dados do PHP.", error);
       }
     }

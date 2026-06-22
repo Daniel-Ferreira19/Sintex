@@ -1,12 +1,15 @@
 <?php
-$host = "localhost";
+$host = "127.0.0.1";
 $user = "root";
 $password = "";
-$database = "sintex_db"; // Altere de "sintex" para "sintex_db"
+$database = "sintex_db";
+$port = 3307; // A PORTA SECRETA DO SENAC AQUI!
 
-$conn = new mysqli($host, $user, $password, $database);
+// Adicionamos a variável $port no final
+$conn = new mysqli($host, $user, $password, $database, $port);
 
 if ($conn->connect_error) {
-    die(json_encode(["success" => false, "message" => "Erro na conexão com o banco."]));
+    header('Content-Type: application/json');
+    die(json_encode(["sucesso" => false, "mensagem" => "Erro na conexão: " . $conn->connect_error]));
 }
 ?>
