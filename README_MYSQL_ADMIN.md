@@ -379,14 +379,16 @@ Sistema de gerenciamento desenvolvido com React, PHP e MySQL.
 
 
 -- ==========================================================
--- SCRIPT DE CRIAÇÃO COMPLETA DO BANCO DE DADOS SINTEX
+-- SCRIPT PARA A CRIAÇÃO COMPLETA DO BANCO DE DADOS SINTEX
 -- ==========================================================
 
 -- 0. Cria o banco de dados (se não existir) e já seleciona ele
+
 CREATE DATABASE IF NOT EXISTS sintex_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sintex_db;
 
 -- 1. Cria a tabela de Administradores (Donos dos restaurantes)
+
 CREATE TABLE IF NOT EXISTS administradores (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
@@ -396,6 +398,7 @@ CREATE TABLE IF NOT EXISTS administradores (
 );
 
 -- 2. Cria a tabela de Restaurantes (ATUALIZADA COM DESCRIÇÃO E CATEGORIA)
+
 CREATE TABLE IF NOT EXISTS restaurantes (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
@@ -409,6 +412,7 @@ CREATE TABLE IF NOT EXISTS restaurantes (
 );
 
 -- 3. Cria a tabela Intermediária (Liga o Administrador ao Restaurante)
+
 CREATE TABLE IF NOT EXISTS administrador_restaurante (
     administrador_id INT(11) NOT NULL,
     restaurante_id INT(11) NOT NULL,
@@ -419,6 +423,7 @@ CREATE TABLE IF NOT EXISTS administrador_restaurante (
 );
 
 -- 4. Cria a tabela de Cardápios (ATUALIZADA COM PREÇO EM VARCHAR)
+
 CREATE TABLE IF NOT EXISTS cardapios (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     restaurante_id INT(11) NOT NULL,
@@ -433,6 +438,7 @@ CREATE TABLE IF NOT EXISTS cardapios (
 );
 
 -- 5. Cria a tabela de Feedbacks (Avaliações dos clientes)
+
 CREATE TABLE IF NOT EXISTS feedbacks (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     restaurante_id INT(11) NOT NULL,
