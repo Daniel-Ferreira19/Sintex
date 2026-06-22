@@ -23,7 +23,6 @@ export default function Home() {
         if (response.ok) {
           const result = await response.json();
           
-          // Lendo corretamente a resposta do PHP
           const backendRestaurants = result.dados?.restaurantes || result.restaurantes || [];
 
           const formattedRestaurants = backendRestaurants.map(r => ({
@@ -33,7 +32,7 @@ export default function Home() {
             type: r.categoria || "Categoria não definida",
             description: r.descricao || "Nenhuma descrição cadastrada.",
             link: r.link || "",
-            image: r.foto_url || "", // Puxando a foto salva pelo Administrador
+            image: r.foto_url || "", 
             
             menu: r.cardapio ? r.cardapio.map(item => ({
               id: item.id,
@@ -44,9 +43,9 @@ export default function Home() {
             
             feedback: r.feedbacks ? r.feedbacks.map(f => {
               let extractedStars = 5;
-              let cleanText = f.comentario;
+              let cleanText = f.comentario || "Sem comentário";
               
-              const match = f.comentario.match(/^\[(\d) Estrelas\] (.*)/);
+              const match = cleanText.match(/^\[(\d) Estrelas\] (.*)/);
               if (match) {
                 extractedStars = Number(match[1]);
                 cleanText = match[2];
@@ -54,7 +53,7 @@ export default function Home() {
 
               return {
                 id: f.id,
-                user: f.nome_cliente,
+                user: f.nome_cliente || "Cliente Anônimo",
                 comment: cleanText,
                 stars: extractedStars,
                 timestamp: new Date(f.criado_em).toLocaleDateString('pt-BR')
@@ -88,7 +87,6 @@ export default function Home() {
     });
   }, [query, restaurants]);
 
-  // Envia o Feedback NOVO para o Banco de Dados
   const handleAddFeedback = async (restaurantId, newFeedback) => {
     const payload = {
       restaurante_id: restaurantId,
@@ -105,7 +103,6 @@ export default function Home() {
 
       const result = await response.json();
 
-      // A CORREÇÃO: Procurar por "sucesso" em vez de "success"
       if (result.sucesso || result.success) {
         alert("Obrigado pela tua avaliação!");
 
@@ -130,7 +127,6 @@ export default function Home() {
 
         setRestaurants(nextRestaurants);
       } else {
-        // A CORREÇÃO: Mostrar a "mensagem" em vez de "message"
         alert("Falha: " + (result.mensagem || result.message || "Erro desconhecido."));
       }
     } catch (error) {
@@ -186,7 +182,6 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
     setDetailTab("view");
   };
 
-  // Se o dono não colocou foto, usa essa bem legal de gastronomia de fundo
   const bannerImage = restaurant.image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800";
 
   return (
@@ -213,14 +208,24 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
           <div className="ClientMeta">
             <span>Avaliação: {restaurant.rating || "N/A"} ⭐</span>
             <span>{restaurant.type}</span>
-            <a
-              href={`http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(restaurant.address || restaurant.name)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ActionBtn MapLink"
-            >
-              Ver no mapa
-            </a>
+            
+            {/* LÓGICA DO MAPA (Link ou Busca por Endereço) */}
+            {(() => {
+              const mapLink = restaurant.link 
+                ? restaurant.link 
+                : `https://maps.google.com/?q=${encodeURIComponent(restaurant.address || restaurant.name)}`;
+
+              return (
+                <a
+                  href={mapLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ActionBtn MapLink"
+                >
+                  📍 Ver no mapa
+                </a>
+              );
+            })()}
           </div>
 
           <div className="DetailTabs">

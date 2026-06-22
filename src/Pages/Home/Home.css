@@ -60,13 +60,16 @@
 
 /* O Header agora é o banner com a imagem */
 .ClientCardHeader {
-  width: 100%;            /* Ocupa toda a largura do card */
-  height: 200px;          /* ALTURA FIXA: Defina aqui a altura que você achar mais bonita */
-  background-size: cover; /* MÁGICA AQUI: Força a imagem a preencher o espaço sem distorcer */
-  background-position: center; /* Centraliza a foto para não cortar o topo ou os lados errado */
+  width: 100%;
+  height: 250px; /* Você pode mudar a altura se quiser o banner mais fino ou mais grosso */
+  
+  /* AS TRÊS LINHAS MÁGICAS: */
+  background-size: cover; 
+  background-position: center; 
   background-repeat: no-repeat;
+  
   position: relative;
-  border-top-left-radius: 8px;  /* Mantém as bordinhas arredondadas se o seu card tiver */
+  border-top-left-radius: 8px; /* Mantém as bordas arredondadas */
   border-top-right-radius: 8px;
   overflow: hidden;
 }

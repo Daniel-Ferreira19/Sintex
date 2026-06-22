@@ -27,7 +27,7 @@ export default function Admin() {
         
         if (response.ok) {
           const result = await response.json();
-          const adminRestaurants = result.dados?.restaurantes || [];
+          const adminRestaurants = result.dados?.restaurantes || result.restaurantes || [];
           
           const formattedRestaurants = adminRestaurants.map(r => ({
             id: r.id,
@@ -47,11 +47,11 @@ export default function Admin() {
               description: item.descricao
             })) : [], 
             
-            comments: r.feedbacks ? r.feedbacks.map(f => {
+            feedback: r.feedbacks ? r.feedbacks.map(f => {
               let extractedStars = 5;
-              let cleanText = f.comentario;
+              let cleanText = f.comentario || "Sem comentário"; 
               
-              const match = f.comentario.match(/^\[(\d) Estrelas\] (.*)/);
+              const match = cleanText.match(/^\[(\d) Estrelas\] (.*)/);
               if (match) {
                 extractedStars = Number(match[1]);
                 cleanText = match[2];
@@ -59,7 +59,7 @@ export default function Admin() {
 
               return {
                 id: f.id,
-                user: f.nome_cliente,
+                user: f.nome_cliente || "Cliente Anônimo",
                 text: cleanText,
                 stars: extractedStars,
                 timestamp: new Date(f.criado_em).toLocaleDateString('pt-BR')
@@ -72,8 +72,7 @@ export default function Admin() {
             setSelectedId(String(formattedRestaurants[0].id));
           }
         }
-      }
-       catch (error) {
+      } catch (error) {
         console.error("Erro ao buscar dados do PHP.", error);
       }
     }
@@ -94,7 +93,6 @@ export default function Admin() {
 
     const adminId = localStorage.getItem("adminId");
 
-    // O payload agora envia os dados básicos também!
     const payload = {
       nome: updatedRestaurant.name,
       categoria: updatedRestaurant.type,
@@ -158,7 +156,6 @@ export default function Admin() {
 }
 
 function RestaurantEditor({ restaurant, onSave }) {
-  // Novos estados para os dados básicos
   const [editName, setEditName] = useState(restaurant.name || "");
   const [editType, setEditType] = useState(restaurant.type || "");
   const [editAddress, setEditAddress] = useState(restaurant.address || "");
@@ -193,7 +190,6 @@ function RestaurantEditor({ restaurant, onSave }) {
         Perfil do Estabelecimento
       </h2>
 
-      {/* SEÇÃO: INFORMAÇÕES BÁSICAS */}
       <div className="BasicInfoSection" style={{marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '15px'}}>
         
         <div>
@@ -215,7 +211,6 @@ function RestaurantEditor({ restaurant, onSave }) {
         <div>
           <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Endereço Completo</label>
           <input className="TextInput" type="text" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} placeholder="Rua, Número, Bairro, Cidade" />
-          <small style={{color: '#666'}}>Este endereço será usado para o botão "Ver no mapa" do cliente.</small>
         </div>
 
         <div>
@@ -225,7 +220,6 @@ function RestaurantEditor({ restaurant, onSave }) {
 
       </div>
 
-      {/* SEÇÃO: LINKS E FOTOS */}
       <div className="RestaurantLinkSection" style={{marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '8px'}}>
         <h3 style={{marginTop: 0, marginBottom: '15px'}}>Mídia e Redes Sociais</h3>
         
@@ -247,18 +241,18 @@ function RestaurantEditor({ restaurant, onSave }) {
         </div>
 
         <div>
-          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Website ou Instagram (Link)</label>
+          <label style={{display: 'block', fontWeight: 'bold', marginBottom: '5px'}}>Link do Google Maps (Opcional)</label>
           <input
             className="TextInput"
             type="url"
-            placeholder="https://www.instagram.com/seurestaurante"
+            placeholder="Cole aqui o link do seu negócio no Google Maps"
             value={editLink}
             onChange={(e) => setEditLink(e.target.value)}
           />
+          <small style={{color: '#666'}}>Se deixar em branco, usaremos o endereço para procurar no mapa.</small>
         </div>
       </div>
 
-      {/* SEÇÃO: CARDÁPIO */}
       <div className="MenuSection">
         <div className="MenuSectionHeader">
           <h3>Editar Cardápio</h3>
@@ -295,14 +289,12 @@ function RestaurantEditor({ restaurant, onSave }) {
           ))
         )}
         
-        {/* BOTÃO PRINCIPAL DE SALVAR */}
         <button type="button" className="SaveButton" onClick={saveChanges} style={{marginTop: '20px', padding: '15px', fontSize: '1.1rem', width: '100%'}}>
           💾 Salvar Todas as Alterações
         </button>
       </div>
 
-      {/* SEÇÃO: DASHBOARD DE FEEDBACKS */}
-      <FeedbackViewer comments={restaurant.comments || []} />
+      <FeedbackViewer comments={restaurant.feedback || []} />
     </>
   );
 }
