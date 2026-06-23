@@ -210,22 +210,8 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
             <span>{restaurant.type}</span>
             
             {/* LÓGICA DO MAPA (Link ou Busca por Endereço) */}
-            {(() => {
-              const mapLink = restaurant.link 
-                ? restaurant.link 
-                : `https://maps.google.com/?q=${encodeURIComponent(restaurant.address || restaurant.name)}`;
-
-              return (
-                <a
-                  href={mapLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ActionBtn MapLink"
-                >
-                  📍 Ver no mapa
-                </a>
-              );
-            })()}
+            {/* LÓGICA DO MAPA (Link direto ou Busca por Endereço) */}
+           
           </div>
 
           <div className="DetailTabs">
@@ -243,6 +229,22 @@ function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
             >
               Adicionar feedback
             </button>
+            {(() => {
+              const mapLink = restaurant.link 
+                ? restaurant.link 
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address || restaurant.name)}`;
+
+              return (
+                <a
+                  href={mapLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ActionBtn MapLink"
+                >
+                  Ver no mapa
+                </a>
+              );
+            })()}
           </div>
 
           {detailTab === "view" ? (

@@ -3,7 +3,7 @@ $host = "127.0.0.1";
 $user = "root";
 $password = "";
 $database = "sintex_db";
-$port = 3306; // A PORTA SECRETA DO SENAC AQUI!
+$port = 3307; // A PORTA SECRETA DO SENAC AQUI!
 
 // Adicionamos a variável $port no final
 $conn = new mysqli($host, $user, $password, $database, $port);

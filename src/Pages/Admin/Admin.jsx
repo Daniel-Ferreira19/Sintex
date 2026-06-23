@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./Admin.css";
 
 const getCommentSentiment = (stars) => {
-  if (stars >= 4) return "positive";
-  if (stars === 3) return "neutral";
-  return "negative";
+  if (stars >= 4) return "positive"; // ele verifica se a avaliação é 4 ou 5 estrelas
+  return "negative"; // ele considera 1, 2 ou 3 estrelas como negativas e coloca no local em que elas irao aparecer como notas baixas
 };
 
 export default function Admin() {
@@ -290,7 +289,7 @@ function RestaurantEditor({ restaurant, onSave }) {
         )}
         
         <button type="button" className="SaveButton" onClick={saveChanges} style={{marginTop: '20px', padding: '15px', fontSize: '1.1rem', width: '100%'}}>
-          💾 Salvar Todas as Alterações
+          Salvar Todas as Alterações
         </button>
       </div>
 
@@ -343,7 +342,7 @@ function FeedbackViewer({ comments }) {
           ✅ Melhores (4 e 5 estrelas)
         </button>
         <button className={`FilterBtn negative ${filterType === "negative" ? "active" : ""}`} onClick={() => setFilterType("negative")}>
-          ❌ Piores (1 e 2 estrelas)
+          ❌ Piores (1 e 3 estrelas)
         </button>
       </div>
       
