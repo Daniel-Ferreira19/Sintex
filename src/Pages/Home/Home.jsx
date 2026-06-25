@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useContext } from "react";
+import { FavoritosContext } from "../../Context/FavoritarContext";
 import "./Home.css";
 
 const calculateAverageRating = (feedbackList) => {
@@ -11,7 +13,6 @@ const calculateAverageRating = (feedbackList) => {
 export default function Home() {
   const [searchParams] = useSearchParams();
   const query = (searchParams.get("q") || "").toLowerCase();
-  
   const [restaurants, setRestaurants] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 
@@ -155,6 +156,7 @@ export default function Home() {
               restaurant={restaurant} 
               isOpen={selectedId === restaurant.id}
               onToggle={() => setSelectedId((prev) => (prev === restaurant.id ? null : restaurant.id))}
+              favoritar="Favoritar"
               onSubmitFeedback={handleAddFeedback}
             />
           ))
@@ -164,10 +166,21 @@ export default function Home() {
   );
 }
 
-function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback }) {
+function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback, favoritar }) {
   const [detailTab, setDetailTab] = useState("view");
   const [form, setForm] = useState({ name: "", stars: 5, text: "" });
-
+  const {favoritos, setFavoritos} = useContext(FavoritosContext);
+///////////////////////////////////////////////////////////////////
+  //leva para pagina de favoritos
+const AoClicar = () => {
+  if(favoritar === "Favoritar"){
+    return setFavoritos([...favoritos, restaurant]);    
+} 
+if(favoritar === "Desfavoritar"){
+  return setFavoritos(favoritos.filter(id => id.id !== restaurant.id));
+}
+}
+/////////////////////////////////////////////////////////////////
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.text.trim()) return;
