@@ -1,10 +1,15 @@
-import { createContext } from "react";
+import { useState } from "react";
+import { FavoritarContext } from "./FavoritarContext";
 
-export default function FavoritarProvider({children}){
+export default function FavoritarProvider({ children }) {
+
     const [favoritos, setFavoritos] = useState([]);
+
     return (
-        <FavoritosContext.Provider value={{ favoritos, setFavoritos }}>
+        <FavoritarContext.Provider
+            value={{ favoritos, setFavoritos }}
+        >
             {children}
-        </FavoritosContext.Provider>
-    )
+        </FavoritarContext.Provider>
+    );
 }

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useContext } from "react";
-import { FavoritosContext } from "../../Context/FavoritarContext";
+import { FavoritarContext } from "../../Context/FavoritarContext";
+
 import "./Home.css";
 
 const calculateAverageRating = (feedbackList) => {
@@ -169,17 +170,26 @@ export default function Home() {
 function RestaurantCard({ restaurant, isOpen, onToggle, onSubmitFeedback, favoritar }) {
   const [detailTab, setDetailTab] = useState("view");
   const [form, setForm] = useState({ name: "", stars: 5, text: "" });
-  const {favoritos, setFavoritos} = useContext(FavoritosContext);
+
+const {favoritos, setFavoritos} = useContext(FavoritarContext);
 ///////////////////////////////////////////////////////////////////
+
   //leva para pagina de favoritos
 const AoClicar = () => {
-  if(favoritar === "Favoritar"){
-    return setFavoritos([...favoritos, restaurant]);    
-} 
-if(favoritar === "Desfavoritar"){
-  return setFavoritos(favoritos.filter(id => id.id !== restaurant.id));
-}
-}
+    console.log("Cliquei");
+
+    if (!favoritar) {
+        const novosFavoritos = [...favoritos, restaurant];
+
+        setFavoritos(novosFavoritos);
+
+        console.log(novosFavoritos);
+    } else {
+        setFavoritos(
+            favoritos.filter(item => item.id !== restaurant.id)
+        );
+    }
+};
 /////////////////////////////////////////////////////////////////
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -212,6 +222,11 @@ if(favoritar === "Desfavoritar"){
           <button className="ActionBtn" type="button" onClick={onToggle}>
             {isOpen ? "Ocultar detalhes" : "Ver detalhes"}
           </button>
+
+          <button className="ActionBtn" type="button" onClick={AoClicar}>
+            {favoritar ? "Favoritar" : "Desfavoritar"}
+          </button>
+
         </div>
       </div>
 

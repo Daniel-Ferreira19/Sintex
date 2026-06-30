@@ -9,6 +9,7 @@ import PaginaDeErro from "./PaginaDeErro/paginaderro";
 import ScrollToTop from "./Pages/ScrollToTop/ScrollToTop";
 import Login from "./Componentes/Login/Login";
 import RegisterAdmin from "./Componentes/Login/RegisterAdmin";
+import Favorita from "./Pages/Favoritos/Favoritos";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="about" element={<About />} />
           {/* Rota do Admin protegida pelo componente RequireAdmin */}
           <Route path="admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
+          <Route path="favoritos" element={<Favorita />} />
         </Route>
 
         {/* Rotas autônomas (sem o LayoutMenu poluindo o visual) */}
