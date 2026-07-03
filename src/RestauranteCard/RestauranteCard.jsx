@@ -114,16 +114,19 @@ export default function RestaurantCard({
 
           </button>
 
-          <button
-            className="ActionBtn"
-            onClick={AoClicar}
-          >
-
-            {favoritar}
-
-          </button>
-
         </div>
+
+        <button
+          type="button"
+          className="FavoriteBtn"
+          onClick={AoClicar}
+          aria-label={favoritar === "Favoritar" ? "Adicionar aos favoritos" : "Remover dos favoritos"}
+          title={favoritar === "Favoritar" ? "Adicionar aos favoritos" : "Remover dos favoritos"}
+        >
+          <span className="FavoriteStarIcon">
+            {favoritar === "Favoritar" ? "☆" : "★"}
+          </span>
+        </button>
 
       </div>
 

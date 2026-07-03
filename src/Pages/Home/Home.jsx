@@ -168,20 +168,24 @@ export default function Home() {
             <p>Nenhum restaurante encontrado.</p>
           </div>
         ) : (
-          filteredRestaurants.map((restaurant) => (
-            <RestaurantCard
-              key={restaurant.id}
-              restaurant={restaurant}
-              isOpen={selectedId === restaurant.id}
-              onToggle={() =>
-                setSelectedId((prev) =>
-                  prev === restaurant.id ? null : restaurant.id
-                )
-              }
-              favoritar="Favoritar"
-              onSubmitFeedback={handleAddFeedback}
-            />
-          ))
+          filteredRestaurants.map((restaurant) => {
+            const isFavorite = favoritos.some((item) => item.id === restaurant.id);
+
+            return (
+              <RestaurantCard
+                key={restaurant.id}
+                restaurant={restaurant}
+                isOpen={selectedId === restaurant.id}
+                onToggle={() =>
+                  setSelectedId((prev) =>
+                    prev === restaurant.id ? null : restaurant.id
+                  )
+                }
+                favoritar={isFavorite ? "Desfavoritar" : "Favoritar"}
+                onSubmitFeedback={handleAddFeedback}
+              />
+            );
+          })
         )}
       </section>
     </main>

@@ -49,6 +49,7 @@
 /* --- NOVO VISUAL DOS CARTÕES --- */
 
 .ClientCard {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 22px;
@@ -120,6 +121,42 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.FavoriteBtn {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 3;
+  transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.FavoriteBtn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.FavoriteStarIcon {
+  color: #ffffff;
+  font-size: 1.55rem;
+  line-height: 1;
+  transition: color 0.16s ease;
+}
+
+.FavoriteBtn:hover .FavoriteStarIcon {
+  color: #facc15;
 }
 
 .ActionBtn:hover {
