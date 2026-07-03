@@ -1,27 +1,63 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { FavoritarContext } from "../../Context/FavoritarContext";
+import RestaurantCard from "../../RestauranteCard/RestauranteCard";
 
 export default function Favorita() {
-    const { favoritos } = useContext(FavoritarContext);
 
-    console.log("Favoritos:", favoritos);
+  const { favoritos } = useContext(FavoritarContext);
 
-    if (favoritos.length === 0) {
-        return <h2>Nenhum restaurante favoritado.</h2>;
-    }
+  const [selectedId, setSelectedId] = useState(null);
 
-    return (
-        <>
-            {favoritos.map(restaurante => (
-                <div key={restaurante.id}>
-                    <h2>{restaurante.name}</h2>
-                    <p>{restaurante.description}</p>
-                    <img
-                        src={restaurante.image}
-                        alt={restaurante.name}
-                    />
-                </div>
-            ))}
-        </>
-    );
+  return (
+
+    <main className="ClientPage">
+
+      <section className="ClientHeader">
+
+        <h1>Favoritos</h1>
+
+      </section>
+
+      <section className="ClientList">
+
+        {favoritos.length === 0 ? (
+
+          <p>Nenhum restaurante favoritado.</p>
+
+        ) : (
+
+          favoritos.map((restaurant) => (
+
+            <RestaurantCard
+
+              key={restaurant.id}
+
+              restaurant={restaurant}
+
+              isOpen={selectedId === restaurant.id}
+
+              onToggle={() =>
+                setSelectedId(prev =>
+                  prev === restaurant.id
+                    ? null
+                    : restaurant.id
+                )
+              }
+
+              favoritar="Desfavoritar"
+
+              onSubmitFeedback={() => {}}
+
+            />
+
+          ))
+
+        )}
+
+      </section>
+
+    </main>
+
+  );
+
 }
