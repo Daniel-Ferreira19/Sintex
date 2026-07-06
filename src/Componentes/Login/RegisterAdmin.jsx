@@ -35,7 +35,7 @@ export default function RegisterAdmin() {
       const result = await response.json();
 
       if (!result.success) {
-        alert(result.message);
+        console.log(result.message);
         if (result.status === "admin_already_exists") {
           navigate("/login", { replace: true });
         }
@@ -43,7 +43,7 @@ export default function RegisterAdmin() {
       }
 
       // Cadastro concluído com sucesso!
-      alert(result.message);
+      console.log(result.message);
       
       // Salva a permissão E o ID gerado pelos 3 INSERTS do banco
       localStorage.setItem("userRole", "admin");
@@ -54,7 +54,7 @@ export default function RegisterAdmin() {
       navigate(routeState.from?.pathname || "/admin", { replace: true });
 
     } catch (error) {
-      alert("Erro ao conectar com o servidor local.");
+      console.error("Erro ao conectar com o servidor local.");
     }
   };
 
