@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ARQUIVO: api/restaurants.php
  * PROPÓSITO: Endpoints para gerenciar restaurantes
@@ -33,15 +34,15 @@ $restaurant = new Restaurant();
 // Listar restaurantes (Geral ou por Administrador)
 // ============================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id'])) {
-    
+
     // ======== AQUI ESTÁ A ALTERAÇÃO ========
     // Se o React enviou o ID do administrador logado na URL:
     if (isset($_GET['admin_id'])) {
         $admin_id = intval($_GET['admin_id']);
-        
+
         // Usa a nova função que busca apenas o restaurante dele (com o cardápio)
         $restaurantes = $restaurant->listarPorAdmin($admin_id);
-        
+
         responderSucesso('Restaurantes do admin', ['restaurantes' => $restaurantes]);
         exit(); // Encerra o script aqui
     }
@@ -53,12 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id'])) {
         'categoria' => $_GET['categoria'] ?? '',
         'busca' => $_GET['busca'] ?? ''
     ];
-    
+
     $limite = intval($_GET['limite'] ?? 10);
     $pagina = intval($_GET['pagina'] ?? 1);
-    
+
     $restaurantes = $restaurant->listar($filtros, $limite, $pagina);
-    
+
     responderSucesso('Restaurantes listados', ['restaurantes' => $restaurantes]);
 }
 
@@ -67,10 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id'])) {
 // Obter detalhes de um restaurante específico
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
-    
+
     $id = intval($_GET['id']);
     $dados = $restaurant->obter($id);
-    
+
     if ($dados) {
         responderSucesso('Restaurante encontrado', ['restaurante' => $dados]);
     } else {
@@ -83,10 +84,16 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
 // Criar novo restaurante
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
+    if (!isset($_GET['admin_id'])) {
+        responderErro('ID do administrador é obrigatório para cadastrar restaurante', [], 403);
+    }
+
+    $admin_id = intval($_GET['admin_id']);
+
     // Obter dados
     $dados = obterDadosJSON();
-    
+
     // Validar campos obrigatórios
     if (empty($dados['name'])) {
         responderErro('Nome do restaurante é obrigatório', [], 400);
@@ -94,19 +101,10 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($dados['address'])) {
         responderErro('Endereço é obrigatório', [], 400);
     }
-    if (empty($dados['city'])) {
-        responderErro('Cidade é obrigatória', [], 400);
-    }
-    if (empty($dados['state'])) {
-        responderErro('Estado é obrigatório', [], 400);
-    }
-    
-    // Definindo um ID de usuário fixo para testes
-    $user_id_teste = 1; 
-    
+
     // Criar restaurante
-    $resultado = $restaurant->criar($user_id_teste, $dados);
-    
+    $resultado = $restaurant->criar($admin_id, $dados);
+
     if ($resultado['sucesso']) {
         responderSucesso($resultado['mensagem'], ['id' => $resultado['id']], 201);
     } else {
@@ -119,25 +117,25 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Atualizar restaurante
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    
+
     // Obter ID do Restaurante
     if (!isset($_GET['id'])) {
         responderErro('ID do restaurante é obrigatório', [], 400);
     }
-    
+
     // Obter o ID do Admin que está salvando as alterações (enviado pelo React na URL)
     if (!isset($_GET['admin_id'])) {
         responderErro('ID do administrador é obrigatório para salvar', [], 403);
     }
-    
+
     $id = intval($_GET['id']);
     $admin_id = intval($_GET['admin_id']);
-    
+
     $dados = obterDadosJSON();
-    
+
     // O método atualizar agora recebe o admin_id correto para garantir a segurança
     $resultado = $restaurant->atualizar($id, $admin_id, $dados);
-    
+
     if ($resultado['sucesso']) {
         responderSucesso($resultado['mensagem']);
     } else {
@@ -146,22 +144,26 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 }
 
 // ============================================================================
-// DELETE /api/restaurants.php?id=1
+// DELETE /api/restaurants.php?id=1&admin_id=1
 // Deletar restaurante
 // ============================================================================
 elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    
-    // Obter ID
+
+    // Obter ID do restaurante
     if (!isset($_GET['id'])) {
         responderErro('ID do restaurante é obrigatório', [], 400);
     }
-    
+
+    if (!isset($_GET['admin_id'])) {
+        responderErro('ID do administrador é obrigatório para excluir restaurante', [], 403);
+    }
+
     $id = intval($_GET['id']);
-    $user_id_teste = 1;
-    
+    $admin_id = intval($_GET['admin_id']);
+
     // Deletar
-    $resultado = $restaurant->deletar($id, $user_id_teste);
-    
+    $resultado = $restaurant->deletar($id, $admin_id);
+
     if ($resultado['sucesso']) {
         responderSucesso($resultado['mensagem']);
     } else {
@@ -175,5 +177,3 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 else {
     responderErro('Método HTTP não permitido', [], 405);
 }
-
-?>

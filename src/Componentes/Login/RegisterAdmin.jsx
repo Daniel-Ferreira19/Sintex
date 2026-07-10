@@ -7,6 +7,7 @@ import "./Login.css";
 export default function RegisterAdmin() {
   const routeState = useLocation().state || {};
   const navigate = useNavigate();
+  const [mensagem, setMensagem] = useState("");
 
   const [formData, setFormData] = useState({
     email: routeState.email || "",
@@ -22,39 +23,34 @@ export default function RegisterAdmin() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost/Sintex/backend/php/register.php", {
+      const response = await fetch("/Pi_Final/Sintex/backend/php/register.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.senha,      
-          restaurant: formData.restaurant 
+          password: formData.senha,
+          restaurant: formData.restaurant,
         }),
       });
 
       const result = await response.json();
 
       if (!result.success) {
-        alert(result.message);
-        if (result.status === "admin_already_exists") {
-          navigate("/login", { replace: true });
-        }
+        setMensagem(result.message || "Falha ao cadastrar administrador.");
         return;
       }
 
-      // Cadastro concluído com sucesso!
-      alert(result.message);
-      
-      // Salva a permissão E o ID gerado pelos 3 INSERTS do banco
+      setMensagem(result.message || "Cadastro realizado com sucesso!");
       localStorage.setItem("userRole", "admin");
       if (result.admin_id) {
-        localStorage.setItem("adminId", result.admin_id); 
+        localStorage.setItem("adminId", result.admin_id);
       }
-      
+
       navigate(routeState.from?.pathname || "/admin", { replace: true });
 
     } catch (error) {
-      alert("Erro ao conectar com o servidor local.");
+      console.error(error);
+      setMensagem("Erro ao conectar com o servidor local.");
     }
   };
 
@@ -86,6 +82,7 @@ export default function RegisterAdmin() {
         </div>
 
         <button type="submit" className="LoginButton">Cadastrar</button>
+        {mensagem && <div className="LoginMessage">{mensagem}</div>}
       </form>
     </div>
   );

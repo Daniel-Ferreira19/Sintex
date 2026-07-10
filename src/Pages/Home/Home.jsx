@@ -27,7 +27,7 @@ export default function Home() {
     async function loadRestaurants() {
       try {
         const response = await fetch(
-          "http://localhost/Sintex/backend/api/restaurants.php"
+          "/Pi_Final/Sintex/backend/api/restaurants.php"
         );
 
         if (response.ok) {
@@ -111,7 +111,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        "http://localhost/Sintex/backend/api/feedbacks.php",
+        "/Pi_Final/Sintex/backend/api/feedbacks.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
