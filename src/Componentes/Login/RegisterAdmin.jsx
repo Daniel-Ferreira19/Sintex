@@ -23,7 +23,8 @@ export default function RegisterAdmin() {
     e.preventDefault();
 
     try {
-      const response = await fetch("/Pi_Final/Sintex/backend/php/register.php", {
+      // O link absoluto correto apontando para a pasta Pi_FinalSintex
+      const response = await fetch("http://localhost/Sintex/backend/php/register.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,4 +87,4 @@ export default function RegisterAdmin() {
       </form>
     </div>
   );
-}
+}   

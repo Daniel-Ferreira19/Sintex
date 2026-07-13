@@ -1,6 +1,6 @@
 <?php
 $DB_HOST = '127.0.0.1';
-$DB_PORT = '3380';      // A PORTA SECRETA DO SENAC AQUI!
+$DB_PORT = '3306';      // A PORTA SECRETA DO SENAC AQUI!
 $DB_USER = 'root';
 $DB_PASS = '';
 $DB_NAME = 'sintex_db';
