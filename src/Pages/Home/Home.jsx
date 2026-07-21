@@ -26,6 +26,7 @@ export default function Home() {
   useEffect(() => {
     async function loadRestaurants() {
       try {
+        // CORREÇÃO 1: Caminho absoluto apontando para o XAMPP
         const response = await fetch(
           "http://localhost/Sintex/backend/api/restaurants.php"
         );
@@ -110,6 +111,7 @@ export default function Home() {
     };
 
     try {
+      // CORREÇÃO 2: Caminho absoluto limpo e correto
       const response = await fetch(
         "http://localhost/Sintex/backend/api/feedbacks.php",
         {
